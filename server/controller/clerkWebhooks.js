@@ -1,4 +1,4 @@
-import User from "../models/User";
+import User from "../models/User.js";
 import { Webhook } from "svix";
 
 const clerkWebhooks = async (req, res)=>{
@@ -19,7 +19,7 @@ const clerkWebhooks = async (req, res)=>{
      const {data, type} = req.body
 
         const userData = {
-        id: data.id,
+        _id: data.id,
         email: data.email_addresses[0].email_address,
         username: data.first_name + " " + data.last_name,
         image: data.image_url,
@@ -47,7 +47,7 @@ const clerkWebhooks = async (req, res)=>{
         
        }
 
-      res.json({success: true, message: "Webhook Recieved"})
+      res.json({success:true, message: "Webhook Recieved"})
 
       } catch (error) {
              console.log(error.message);
