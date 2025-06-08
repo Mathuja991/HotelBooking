@@ -15,8 +15,8 @@ const clerkWebhooks = async (req, res)=>{
         };
 
 // Verifying Headers
-     await whook.verify(JSON.stringify(req.body), headers)
-     const {data, type} = req.body
+          await whook.verify(JSON.stringify(req.body), headers)
+          const {data, type} = req.body
 
         const userData = {
         _id: data.id,
@@ -29,31 +29,32 @@ const clerkWebhooks = async (req, res)=>{
         // Switch Cases for differernt Events
         switch (type) {
         case "user.created":{
-        await User.create(userData);
-        break;
+              await User.create(userData);
+              break;
         }
         case "user.updated":{
-        await User.findByIdAndUpdate(data.id, userData)
-        break;
+              await User.findByIdAndUpdate(data.id, userData)
+              break;
 
         }
         case "user.deleted":{
-        await User.findByIdAndDelete(data.id);
-        break;
+             await User.findByIdAndDelete(data.id);
+             break;
 
         }
         default:
-        break;
+            break;
         
        }
-
-      res.json({success:true, message: "Webhook Recieved"})
+       res.json({success:true, message: "Webhook Recieved"})
 
       } catch (error) {
              console.log(error.message);
               res.json({ success: false, message: error.message });
 
       }
+
+      
 }
 
 export default clerkWebhooks;
