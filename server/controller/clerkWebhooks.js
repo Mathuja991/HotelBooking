@@ -13,21 +13,22 @@ const clerkWebhooks = async (req, res) => {
             "svix-signature": req.headers["svix-signature"],
         };
 
-        await whook.verify(JSON.stringify(req.body), headers);
+        // req.body is Buffer because we used express.raw()
+        const payload = req.body.toString("utf8");
 
+        // Verify the webhook signature and parse the event
+        const evt = whook.verify(payload, headers);
 
-        // ✅ Parse the raw body
-        const { data, type } = JSON.parse(req.body);
+        const { data, type } = evt;
 
         console.log("📦 Webhook Type: ", type);
         console.log("👤 User Data: ", data);
 
-        // ✅ Use updated field names based on Clerk's current API
         const userData = {
             _id: data.id,
-            username: `${data.firstName || ''} ${data.lastName || ''}`.trim() || "Unnamed User",
-            email: data.emailAddresses?.[0]?.emailAddress || "no-email@provided.com",
-            image: data.imageUrl || "",
+            username: `${data.first_name || ''} ${data.last_name || ''}`.trim() || "Unnamed User",
+            email: data.email_addresses?.[0]?.email_address || "no-email@provided.com",
+            image: data.image_url || "",
             role: "user",
             recentSearchedCities: [],
         };
@@ -55,10 +56,10 @@ const clerkWebhooks = async (req, res) => {
                 break;
         }
 
-        res.json({ success: true, message: "Webhook Received" });
+        res.status(200).json({ success: true, message: "Webhook Received" });
     } catch (error) {
         console.error("❌ Webhook Error: ", error.message);
-        res.json({ success: false, message: error.message });
+        res.status(400).json({ success: false, message: error.message });
     }
 };
 
