@@ -11,7 +11,7 @@ const clerkWebhooks = async (req, res) => {
             "svix-id": req.headers["svix-id"],
             "svix-timestamp": req.headers["svix-timestamp"],
             "svix-signature": req.headers["svix-signature"],
-        };
+         };
 
         // ✅ For raw body (you are using bodyParser.raw)
         await whook.verify(req.body, headers);
