@@ -3,7 +3,7 @@ import { Webhook } from "svix";
 
 const clerkWebhooks = async (req, res) => {
     try {
-        console.log("🔔 Clerk Webhook Triggered: ", req.body);
+        console.log("🔔 Clerk Webhook Triggered");
 
         const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
 
@@ -15,16 +15,19 @@ const clerkWebhooks = async (req, res) => {
 
         await whook.verify(JSON.stringify(req.body), headers);
 
-        const { data, type } = req.body;
+
+        // ✅ Parse the raw body
+        const { data, type } = JSON.parse(req.body);
 
         console.log("📦 Webhook Type: ", type);
         console.log("👤 User Data: ", data);
 
+        // ✅ Use updated field names based on Clerk's current API
         const userData = {
             _id: data.id,
-            username: `${data.first_name || ''} ${data.last_name || ''}`.trim() || "Unnamed User",
-            email: data.email_addresses?.[0]?.email_address || "no-email@provided.com",
-            image: data.image_url || "",
+            username: `${data.firstName || ''} ${data.lastName || ''}`.trim() || "Unnamed User",
+            email: data.emailAddresses?.[0]?.emailAddress || "no-email@provided.com",
+            image: data.imageUrl || "",
             role: "user",
             recentSearchedCities: [],
         };
