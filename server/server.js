@@ -17,7 +17,8 @@ app.use(clerkMiddleware())
 app.use(express.json())
 
 // Add a raw body parser only for the webhook route
-app.post('/api/clerk', bodyParser.raw({ type: '*/*' }), clerkWebhooks)
+app.post('/api/webhook', express.raw({ type: 'application/json' }), clerkWebhooks);
+
 
 app.get('/', (req, res) => res.send("API is working"))
 
