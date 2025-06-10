@@ -5,7 +5,6 @@ const clerkWebhooks = async (req, res) => {
     try {
         console.log("🔔 Clerk Webhook Triggered");
 
-        const payload = req.body; // raw buffer
         const headers = {
             "svix-id": req.headers["svix-id"],
             "svix-timestamp": req.headers["svix-timestamp"],
@@ -13,9 +12,14 @@ const clerkWebhooks = async (req, res) => {
         };
 
         const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
-        const evt = wh.verify(payload, headers); // returns parsed JSON with type/data
+        const evt = wh.verify(req.body, headers); // ✅ Must use raw buffer
 
         const { data, type } = evt;
+
+        if (!data || !data.id) {
+            console.warn("⚠️ Webhook received with no valid data:", evt);
+            return res.status(400).json({ success: false, message: "Invalid data in webhook" });
+        }
 
         const userData = {
             _id: data.id,
@@ -30,25 +34,29 @@ const clerkWebhooks = async (req, res) => {
 
         switch (type) {
             case "user.created":
-                await User.create(userData);
-                console.log("✅ User Created in DB");
+                await User.findByIdAndUpdate(data.id, userData, { upsert: true });
+                console.log("✅ User Created or Updated in DB");
                 break;
+
             case "user.updated":
                 await User.findByIdAndUpdate(data.id, userData);
                 console.log("✅ User Updated in DB");
                 break;
+
             case "user.deleted":
                 await User.findByIdAndDelete(data.id);
                 console.log("✅ User Deleted from DB");
                 break;
+
             default:
-                console.log("⚠️ Unknown Webhook Event");
+                console.log("⚠️ Unknown Webhook Event Type:", type);
                 break;
         }
 
-        res.json({ success: true, message: "Webhook Received" });
+        res.status(200).json({ success: true, message: "Webhook handled" });
+
     } catch (error) {
-        console.error("❌ Webhook Error: ", error.message);
+        console.error("❌ Webhook Error: ", error);
         res.status(400).json({ success: false, message: error.message });
     }
 };
