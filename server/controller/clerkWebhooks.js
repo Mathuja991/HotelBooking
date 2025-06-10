@@ -5,23 +5,18 @@ const clerkWebhooks = async (req, res) => {
     try {
         console.log("🔔 Clerk Webhook Triggered");
 
-        const whook = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
-
+        const payload = req.body; // raw buffer
         const headers = {
             "svix-id": req.headers["svix-id"],
             "svix-timestamp": req.headers["svix-timestamp"],
             "svix-signature": req.headers["svix-signature"],
         };
 
-        await whook.verify(JSON.stringify(req.body), headers);
+        const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
+        const evt = wh.verify(payload, headers); // returns parsed JSON with type/data
 
+        const { data, type } = evt;
 
-        // ✅ Parse the raw body
-        const { data, type } = req.body;
-
-       
-
-        // ✅ Use updated field names based on Clerk's current API
         const userData = {
             _id: data.id,
             username: `${data.firstName || ''} ${data.lastName || ''}`.trim() || "Unnamed User",
@@ -38,17 +33,14 @@ const clerkWebhooks = async (req, res) => {
                 await User.create(userData);
                 console.log("✅ User Created in DB");
                 break;
-
             case "user.updated":
                 await User.findByIdAndUpdate(data.id, userData);
                 console.log("✅ User Updated in DB");
                 break;
-
             case "user.deleted":
                 await User.findByIdAndDelete(data.id);
                 console.log("✅ User Deleted from DB");
                 break;
-
             default:
                 console.log("⚠️ Unknown Webhook Event");
                 break;
@@ -57,7 +49,7 @@ const clerkWebhooks = async (req, res) => {
         res.json({ success: true, message: "Webhook Received" });
     } catch (error) {
         console.error("❌ Webhook Error: ", error.message);
-        res.json({ success: false, message: error.message });
+        res.status(400).json({ success: false, message: error.message });
     }
 };
 
