@@ -12,7 +12,9 @@ const clerkWebhooks = async (req, res) => {
         };
 
         const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET);
-        const evt = wh.verify(req.body, headers); // ✅ Must use raw buffer
+        const evt = wh.verify(req.body, headers); // already correct
+
+        console.log("📦 Full Clerk Webhook Payload:", JSON.stringify(evt, null, 2));
 
         const { data, type } = evt;
 
@@ -21,14 +23,15 @@ const clerkWebhooks = async (req, res) => {
             return res.status(400).json({ success: false, message: "Invalid data in webhook" });
         }
 
-        const userData = {
-            _id: data.id,
-            username: `${data.firstName || ''} ${data.lastName || ''}`.trim() || "Unnamed User",
-            email: data.emailAddresses?.[0]?.emailAddress || "no-email@provided.com",
-            image: data.imageUrl || "",
-            role: "user",
-            recentSearchedCities: [],
-        };
+       const userData = {
+    _id: data.id,
+    username: `${data.first_name || ''} ${data.last_name || ''}`.trim() || "Unnamed User",
+    email: data.email_addresses?.[0]?.email_address || "no-email@provided.com",
+    image: data.image_url || "",
+    role: "user",
+    recentSearchedCities: [],
+};
+
 
         console.log("🚀 Processed User Data: ", userData);
 
