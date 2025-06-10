@@ -14,10 +14,10 @@ app.use(cors()) // Enable Cross-Origin Resource Sharing
 app.use(clerkMiddleware())
 
 // Parse JSON body for all routes except the webhook
-app.use(express.json())
+
 
 app.post('/api/clerk', bodyParser.raw({ type: '*/*' }), clerkWebhooks);
-
+app.use(express.json());
 app.get('/', (req, res) => res.send("API is working"))
 
 const PORT = process.env.PORT || 3000;
