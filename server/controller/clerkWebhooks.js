@@ -17,10 +17,9 @@ const clerkWebhooks = async (req, res) => {
 
 
         // ✅ Parse the raw body
-        const { data, type } = JSON.parse(req.body);
+        const { data, type } = req.body;
 
-        console.log("📦 Webhook Type: ", type);
-        console.log("👤 User Data: ", data);
+       
 
         // ✅ Use updated field names based on Clerk's current API
         const userData = {
