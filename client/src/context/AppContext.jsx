@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
+
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
@@ -25,9 +26,7 @@ export const AppProvider = ({ children }) => {
         return;
       }
 
-      const { data } = await axios.get("/api/user", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const { data } = await axios.get("api/user", { headers: { Authorization: `Bearer ${token}` } });
 
       if (data && data.success) {
         setIsOwner(data.role === "hotelOwner");
@@ -35,10 +34,17 @@ export const AppProvider = ({ children }) => {
       } else {
         setTimeout(fetchUser, 5000);
       }
-    } catch (error) {
-      toast.error(error.message);
-      console.error(error);
-    }
+    }catch (error) {
+  if (error.response && error.response.status === 401) {
+    toast.error("Session expired, please login again.");
+    // optionally navigate to login page
+    navigate("/login");
+  } else {
+    toast.error(error.message);
+  }
+  console.error(error);
+}
+
   };
 
   useEffect(() => {
