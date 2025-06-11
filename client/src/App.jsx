@@ -17,7 +17,7 @@ import HotelReg from './components/HotelReg'
 const App = () => {
   
   const isOwnerPath =useLocation().pathname.includes("owner");
-  const  {showHotelReg}= useAppContext();
+  const  {showHotelReg ,user}= useAppContext();
 
 
   return (
