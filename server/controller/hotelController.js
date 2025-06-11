@@ -1,25 +1,26 @@
-import { Message, messageInRaw } from "svix/dist/api/message.js";
 import Hotel from "../models/Hotel.js";
 import User from "../models/User.js";
 
-export const registerHotel =async (req,res) =>{
-    try{
-      const {name ,address ,contact ,city } =req.body;
-      const owner =req.user._id
+export const registerHotel = async (req, res) => {
+    try {
+        const { name, address, contact, city } = req.body;
+        const owner = req.user._id;
 
-      const hotel =await Hotel.findOne({owner})
-      if(hotel)
-      {
-        return res.json({success:false ,Message : "Hotel already Registered"})
-      }
+        // Check if this user already has a hotel with the same name
+        const existingHotel = await Hotel.findOne({ owner, name });
+        if (existingHotel) {
+            return res.json({ success: false, message: "You already have a hotel with this name." });
+        }
 
-      await Hotel.create({name ,address ,contact ,city,owner});
-      await User.findByIdAndUpdate(owner,{role:"hotelOwner"});
-      
-        res.json({success:true ,message:"Hotel Registered Successfully" });
-    
-    } catch (error)
-    {
-       res.json({success:false ,message:error.message });
+        // Create the new hotel
+        await Hotel.create({ name, address, contact, city, owner });
+
+        // Update user role to hotelOwner
+        await User.findByIdAndUpdate(owner, { role: "hotelOwner" });
+
+        res.json({ success: true, message: "Hotel Registered Successfully" });
+
+    } catch (error) {
+        res.json({ success: false, message: error.message });
     }
 }

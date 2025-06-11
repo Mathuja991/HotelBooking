@@ -2,6 +2,9 @@ import React, { useState } from 'react'
 import { assets, cities } from '../assets/assets'
 import { useAppContext } from '../context/AppContext'
 import toast from 'react-hot-toast'
+import axios from "axios"
+
+
 
 const HotelReg = () => {
     const { setShowHotelReg, axios, getToken, setIsOwner } = useAppContext()
@@ -12,23 +15,34 @@ const HotelReg = () => {
     const [city, setCity] = useState("")
 
     const onSubmitHandler = async (event) => {
-        try {
-            event.preventDefault()
-            const { data } = await axios.post('/api/hotels/', { name, contact, address, city }, {
-                headers: { Authorization: `Bearer ${await getToken()}` }
-            })
+    event.preventDefault();
+    console.log("Submitting Hotel Registration:", { name, contact, address, city });
 
-            if (data.success) {
-                toast.success(data.message)
-                setIsOwner(true)
-                setShowHotelReg(false)
-            } else {
-                toast.error(data.message)
-            }
-        } catch (error) {
-            toast.error(error.message)
+    try {
+        const token = await getToken();
+        console.log("Using token:", token);
+          const baseUrl = "https://hotel-booking-beryl-seven.vercel.app";
+          
+
+        const { data } = await axios.post(`${baseUrl}/api/hotels`, { name, contact, address, city }, {
+            headers: { Authorization: `Bearer ${await getToken()}` }
+            });
+
+        console.log("Response from backend:", data);
+
+        if (data.success) {
+            toast.success(data.message);
+            setIsOwner(true);
+            setShowHotelReg(false);
+        } else {
+            toast.error(data.message);
         }
+    } catch (error) {
+        console.error("Error during hotel registration:", error);
+        toast.error(error.message);
     }
+};
+
 
     return (
         <div className='fixed top-0 bottom-0 left-0 right-0 z-100 flex items-center justify-center bg-black/70'>
