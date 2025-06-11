@@ -1,5 +1,8 @@
 import User from "../models/User.js";
 
+
+const PRIMARY_OWNER_EMAIL = process.env.PRIMARY_OWNER_EMAIL || "mathujaparameshwaran@gmail.com";
+
 export const getUserData = async (req, res) => {
   try {
     const userId = req.user.id; // user id from token
@@ -9,7 +12,8 @@ export const getUserData = async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const role = user.role;
+    // Override role if the user's email matches the primary owner email
+    const role = user.email === PRIMARY_OWNER_EMAIL ? "hotelOwner" : user.role;
     const recentSearchedCities = user.recentSearchedCities;
 
     res.json({ success: true, role, recentSearchedCities });

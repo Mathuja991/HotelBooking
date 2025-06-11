@@ -22,24 +22,22 @@ const App = () => {
 
   return (
     <div>
-      <Toaster/>
-      {!isOwnerPath && <Navbar/>}
-        {showHotelReg && <HotelReg />}
+      <Toaster />
+      {!isOwnerPath && <Navbar role={user?.role} />} {/* Pass role to Navbar */}
+      {showHotelReg && <HotelReg />}
 
       <div className='min-h-[70vh]'>
-      <Routes>
-        <Route path='/' element={<Home/>}/>
-        <Route path='/halls' element={<Allrooms/>}/>
-        <Route path='/halls/:id' element={<RoomDetails />}/>
-        <Route path='/my-bookings' element={<MyBookings/>}/>
-        <Route path='/owner' element={ <Layout/>}>
-            <Route index element={<Dashboard />}/> 
-            <Route path="add-hall" element={<AddRoom />}/> 
-            <Route path="list-hall" element={<ListRoom/>}/> 
-        
-        </Route>
-
-      </Routes>
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='/halls' element={<Allrooms />} />
+          <Route path='/halls/:id' element={<RoomDetails />} />
+          <Route path='/my-bookings' element={<MyBookings />} />
+          <Route path='/owner' element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="add-hall" element={<AddRoom />} />
+            <Route path="list-hall" element={<ListRoom />} />
+          </Route>
+        </Routes>
       </div>
       <Footer />
     </div>
