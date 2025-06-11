@@ -17,16 +17,17 @@ connectCloudinary();
 const app = express();
 
 app.use(cors());
-app.use(express.json()); // Should come before most routes
+
+// ✅ Webhook must parse raw body and be ABOVE express.json()
+app.post('/api/clerk', bodyParser.raw({ type: '*/*' }), clerkWebhooks);
+
+// ✅ Apply JSON body parser to all other routes AFTER webhook
+app.use(express.json());
 
 app.use(clerkMiddleware());
 
-// Webhook must parse raw body
-app.post('/api/clerk', bodyParser.raw({ type: '*/*' }), clerkWebhooks);
-
 app.get('/', (req, res) => res.send("API is working"));
 
-// ✅ Add leading slash
 app.use('/api/user', userRouter);
 app.use('/api/hotels', hotelRouter);
 app.use('/api/rooms', roomRouter);
