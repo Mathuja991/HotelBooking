@@ -109,9 +109,9 @@ const AddRoom = () => {
                     </div>
 
                     <div>
-                        <p className='mt-4 text-gray-800'>Price <span className='text-xs'>/day</span></p>
+                        <p className='mt-4 text-gray-800'>Price <span className='text-xs'>/day</span></p>Rs.
                         <input type="number" placeholder='0' className='border border-gray-300 mt-1 rounded p-2 w-24'
-                            value={inputs.pricePerNight}
+                            value= {inputs.pricePerNight}
                             onChange={e => setInputs({ ...inputs, pricePerNight: e.target.value })}
                         />
                     </div>
