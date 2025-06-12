@@ -17,17 +17,20 @@ export const AppProvider = ({ children }) => {
   const [rooms, setRooms] = useState([]);
 
   const fetchRooms = async () => {
-    try {
-      const { data } = await axios.get('/api/rooms');
-      if (data.success) {
-        setRooms(data.rooms);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
+  try {
+    const token = await getToken(); // from Clerk Auth
+    const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/rooms`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    console.log("Fetched rooms: ", data);
+    setRooms(data.rooms);
+  } catch (error) {
+    console.error(error);
+    toast.error(error.message);
+  }
+};
+
+
 
   const fetchUser = async () => {
     try {

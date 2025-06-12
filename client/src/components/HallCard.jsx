@@ -4,36 +4,36 @@ import { assets } from '../assets/assets'
 
 const HallCard = ({room,index}) => {
   return (
-    <Link  className='relative max-w-70 w-full rounded -xl overflow-hidden
-      bg-white text-gray-500/90 shadow-[0px_4px_4px_rgba(0,0,0,0.05)' to={'/halls' + room._id} onClick={()=> scrollTo(0,0)} key={room._id} >
-     <img src={room.images[0] } alt =""  />
-     
-     { <p className='px-3 py-1 absolute top-3 left-3 text-xs bg-white
-      text-gray-800 font-medium rounded-full'>Best choice</p>}
-     <div className='p-4 pt-5'>
-        <div className='flex items-center justify-between'>
-            <p className='font-playfair text-xl font-medium text-gray-800'>{room.hotel.name}</p>
-            <div className='flex items-center gap-1'>
-                <img src={assets.starIconFilled} alt="star-icon" />4.5
-            </div>
+    <Link 
+  className='relative max-w-70 w-full rounded-xl overflow-hidden bg-white text-gray-500/90 shadow-[0px_4px_4px_rgba(0,0,0,0.05)' 
+  to={'/halls/' + room._id} // Added missing slash
+  onClick={() => scrollTo(0, 0)} 
+  key={room._id}
+>
+  <img src={room.images[0]} alt={room.roomType} />
 
-        </div>
-        <div className='flex items-center gap-1 text-sm'>
-            <img src={assets.locationIcon} alt="star-icon" />
-            <span>{room.hotel.address}</span>
+  <p className='px-3 py-1 absolute top-3 left-3 text-xs bg-white text-gray-800 font-medium rounded-full'>Best choice</p>
 
+  <div className='p-4 pt-5'>
+    <div className='flex items-center justify-between'>
+      <p className='font-playfair text-xl font-medium text-gray-800'>{room.roomType}</p>
+      <div className='flex items-center gap-1'>
+        <img src={assets.starIconFilled} alt="star-icon" /> 4.5
+      </div>
+    </div>
 
-          
-        </div>
-        <div className='flex items-center justify-between mt-4'>
-           <p><span className='text-xl text-gray-800'>${room.pricePerNight}</span>/night</p> 
-           <button className='px-4 py-2 text-sm font-medium border border-gray-300 rounded hover:bg-gray-50 transition-all cursor-pointer'>Book now</button>
-        </div>
-     </div>
+    <div className='flex items-center gap-1 text-sm'>
+      <img src={assets.locationIcon} alt="location-icon" />
+      <span>No address provided</span> {/* Placeholder */}
+    </div>
 
+    <div className='flex items-center justify-between mt-4'>
+      <p><span className='text-xl text-gray-800'>${room.pricePerNight}</span> / night</p>
+      <button className='px-4 py-2 text-sm font-medium border border-gray-300 rounded hover:bg-gray-50 transition-all cursor-pointer'>Book now</button>
+    </div>
+  </div>
+</Link>
 
-
-    </Link>
   )
 }
 
