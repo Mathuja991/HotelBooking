@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { assets } from "../assets/assets";
-import { useClerk, UserButton } from "@clerk/clerk-react";
+import { useClerk, UserButton, useUser } from "@clerk/clerk-react";
 import { useAppContext } from "../context/AppContext";
 
 const BookIcon = () => (
@@ -23,7 +23,26 @@ const Navbar = () => {
     const { openSignIn } = useClerk();
     const location = useLocation();
 
-    const { user, navigate, role, setShowHotelReg } = useAppContext();
+    const { navigate, setShowHotelReg } = useAppContext();
+
+    const { user } = useUser(); // Clerk user
+    const [dbUser, setDbUser] = useState(null);
+
+    useEffect(() => {
+        if (user) {
+            const fetchUserData = async () => {
+                try {
+                    const response = await fetch(`/api/users/${user.primaryEmailAddress.emailAddress}`);
+                    const data = await response.json();
+                    setDbUser(data);
+                } catch (err) {
+                    console.error("Error fetching user data:", err);
+                }
+            };
+
+            fetchUserData();
+        }
+    }, [user]);
 
     useEffect(() => {
         if (location.pathname !== '/') {
@@ -45,7 +64,7 @@ const Navbar = () => {
         <nav className={`fixed top-0 left-0 w-full flex items-center justify-between px-4 md:px-16 lg:px-24 xl:px-32 transition-all duration-500 z-50 ${isScrolled ? "bg-white/80 shadow-md text-gray-700 backdrop-blur-lg py-3 md:py-4" : "py-4 md:py-6"}`}>
 
             {/* Logo */}
-            <Link to='/' >
+            <Link to='/'>
                 <img src={assets.logo} alt="logo" className={`h-9 ${isScrolled && "invert opacity-80"}`} />
             </Link>
 
@@ -57,14 +76,14 @@ const Navbar = () => {
                         <div className={`${isScrolled ? "bg-gray-700" : "bg-white"} h-0.5 w-0 group-hover:w-full transition-all duration-300`} />
                     </a>
                 ))}
-                {user && role !== "hotelOwner" && (
+                {user && dbUser?.role === "hotelOwner" && (
                     <button
                         className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${isScrolled ? 'text-black' : 'text-white'} transition-all`}
                         onClick={() => navigate('/owner')}>
                         Dashboard
                     </button>
                 )}
-                {user && role === "hotelOwner" && (
+                {user && dbUser?.role !== "hotelOwner" && (
                     <button
                         className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${isScrolled ? 'text-black' : 'text-white'} transition-all`}
                         onClick={() => setShowHotelReg(true)}>
@@ -121,13 +140,13 @@ const Navbar = () => {
                     </a>
                 ))}
 
-                {user && role !== "hotelOwner" && (
+                {user && dbUser?.role === "hotelOwner" && (
                     <button className="border px-4 py-1 text-sm font-light rounded-full cursor-pointer transition-all" onClick={() => { navigate('/owner'); setIsMenuOpen(false); }}>
                         Dashboard
                     </button>
                 )}
 
-                {user && role === "hotelOwner" && (
+                {user && dbUser?.role !== "hotelOwner" && (
                     <button className="border px-4 py-1 text-sm font-light rounded-full cursor-pointer transition-all" onClick={() => { setShowHotelReg(true); setIsMenuOpen(false); }}>
                         List Your Hotel
                     </button>
