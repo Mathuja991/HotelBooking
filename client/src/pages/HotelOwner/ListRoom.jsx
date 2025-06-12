@@ -1,53 +1,53 @@
 import React, { useEffect, useState } from 'react';
-//import { roomsDummyData } from '../../assets/assets';
 import Title from '../../components/Title';
 import { useAppContext } from '../../context/AppContext';
+import toast from 'react-hot-toast';
 
 export const ListRoom = () => {
+  const [rooms, setRooms] = useState([]);
+  const { axios, getToken, user } = useAppContext();
 
-
-const [rooms, setRooms] = useState([])
-const {axios, getToken, user} = useAppContext()
-
-// Fetch Rooms of the Hotel Owner
-const fetchRooms = async ()=>{
+  // Fetch Rooms of the Hotel Owner
+  const fetchRooms = async () => {
     try {
+      const { data } = await axios.get('/api/rooms/owner', {
+        headers: { Authorization: `Bearer ${await getToken()}` }
+      });
 
-      const { data } = await axios.get('/api/rooms/owner', {headers:
-        {Authorization : `Bearer ${await getToken()}`}
-      })
-   
-    if (data.success){
-        setRooms(data.rooms)
-    
-    }else{
-      toast.error(data.message)
-    }
-
-    }catch(error){
-       toast.error(error.message)
-    }
-    
-  }
-    const toggleAyailability = async (roomId)=>{
-      const {data} = await axios.post('/api/rooms/toggle-availability', {roomId},
-      {headers: {Authorization: `Bearer ${await getToken()} `}})
       if (data.success) {
-         toast.success(data.message)
-         fetchRooms()
-      }else{
-         toast.error(data.message)
+        setRooms(data.rooms);
+      } else {
+        toast.error(data.message);
       }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
+  // ✅ You had this useEffect inside your toggle function. It MUST be outside.
+  useEffect(() => {
+    if (user) {
+      fetchRooms();
+    }
+  }, [user]);
 
-      useEffect(()=>{
-          if(user){
-          fetchRooms()
-          }
-          }, [user])
+  const toggleAvailability = async (roomId) => {
+    try {
+      const { data } = await axios.post('/api/rooms/toggle-availability',
+        { roomId },
+        { headers: { Authorization: `Bearer ${await getToken()}` } }
+      );
 
-          
-        }
+      if (data.success) {
+        toast.success(data.message);
+        fetchRooms(); // Refresh list after toggling
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
 
   return (
     <div className="p-4 max-w-6xl mx-auto">
@@ -80,7 +80,7 @@ const fetchRooms = async ()=>{
                 <td className="px-6 py-4 text-center">
                   <label className="inline-flex items-center cursor-pointer relative">
                     <input
-                      onChange={()=> toggleAyailability(item._id)}
+                      onChange={() => toggleAvailability(item._id)}
                       type="checkbox"
                       className="sr-only peer"
                       checked={item.isAvailable}
