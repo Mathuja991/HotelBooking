@@ -13,7 +13,7 @@ import bookingRouter from "./routes/bookingRoutes.js";
 import dotenv from 'dotenv';
 
 
-dotenv.config();
+
 
 connectDB();
 connectCloudinary();
@@ -36,7 +36,7 @@ app.use('/api/user', userRouter);
 app.use('/api/hotels', hotelRouter);
 app.use('/api/rooms', roomRouter);
 app.use('/api/bookings', bookingRouter);
-
+dotenv.config();
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
