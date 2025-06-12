@@ -43,7 +43,8 @@ const Navbar = () => {
                 const email = user.primaryEmailAddress.emailAddress;
                 console.log("Fetching user from API using email:", email);
 
-                const response = await fetch(`/api/users/${email}`);
+                const response = await fetch(`https://hotel-booking-beryl-seven.vercel.app/api/users/${email}`);
+
 
                 if (!response.ok) {
                     console.error("API Error:", response.status, response.statusText);
