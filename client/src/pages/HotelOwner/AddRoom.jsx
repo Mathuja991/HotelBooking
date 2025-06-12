@@ -67,12 +67,22 @@ const onSubmitHandler =async (e)=>{
                     roomType:'',
                     pricePerNight: 0,
                     amenities: {
-                    'Free WiFi': false,
-                    'Free Breakfast': false,
-                   ' Room Service': false,
+                    'Air Conditioning': false,
+                    'Projector': false,
+                   ' Sound System': false,
                     'Mountain View': false,
-                    'Pool Access': false
-
+                    'Lighting': false,
+                     'Stage': false,
+                    'Chairs and Tables': false,
+                   ' Parking': false,
+                    'Catering Service': false,
+                    'Decoration': false,
+                     'Restrooms': false,
+                    'Power Backup': false,
+                   ' Free Wifi': false,
+                    
+                    'Security Staff': false
+                     
                     }
                 })
 
