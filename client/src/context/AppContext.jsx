@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
+
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
@@ -13,8 +14,6 @@ export const AppProvider = ({ children }) => {
   const navigate = useNavigate();
   const { user } = useUser();
   const { getToken } = useAuth();
-
-  const [userRole, setUserRole] = useState(""); // Track role directly
   const [isOwner, setIsOwner] = useState(false);
   const [showHotelReg, setShowHotelReg] = useState(false);
   const [searchedCities, setSearchedCities] = useState([]);
@@ -27,25 +26,25 @@ export const AppProvider = ({ children }) => {
         return;
       }
 
-      const { data } = await axios.get("api/user", { headers: { Authorization: `Bearer ${token}` } });
+      const { data } = await axios.get("api/user", { headers: { Authorization: `Bearer ${token} `} });
 
       if (data && data.success) {
-        setUserRole(data.role);
         setIsOwner(data.role === "hotelOwner");
         setSearchedCities(data.recentSearchedCities);
       } else {
-        // Retry after delay
         setTimeout(fetchUser, 5000);
       }
-    } catch (error) {
-      if (error.response && error.response.status === 401) {
-        toast.error("Session expired, please login again.");
-        navigate("/login");
-      } else {
-        toast.error(error.message);
-      }
-      console.error(error);
-    }
+    }catch (error) {
+  if (error.response && error.response.status === 401) {
+    toast.error("Session expired, please login again.");
+    // optionally navigate to login page
+    navigate("/login");
+  } else {
+    toast.error(error.message);
+  }
+  console.error(error);
+}
+
   };
 
   useEffect(() => {
@@ -59,7 +58,6 @@ export const AppProvider = ({ children }) => {
     navigate,
     user,
     getToken,
-    userRole,
     isOwner,
     setIsOwner,
     axios,
@@ -73,3 +71,6 @@ export const AppProvider = ({ children }) => {
 };
 
 export const useAppContext = () => useContext(AppContext);
+
+// Remove this export to avoid HMR warning
+// export { AppContext }; 

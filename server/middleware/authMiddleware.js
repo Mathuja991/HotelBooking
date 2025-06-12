@@ -1,17 +1,14 @@
-import jwt from 'jsonwebtoken';
 import User from "../models/User.js";
 
 export const protect = async (req, res, next) => {
     try {
-        const token = req.headers.authorization?.split(' ')[1];
+        const { userId } = await req.auth();
 
-        if (!token) {
+        if (!userId) {
             return res.status(401).json({ success: false, message: "Not authenticated" });
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        const user = await User.findById(decoded.userId);
+        const user = await User.findById(userId);
 
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
