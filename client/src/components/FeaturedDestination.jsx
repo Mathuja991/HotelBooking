@@ -3,12 +3,13 @@ import { roomsDummyData } from '../assets/assets'
 import HallCard from './HallCard'
 import Title from './Title'
 import { useNavigate } from 'react-router-dom' ;
+import { useAppContext } from '../context/AppContext';
 
 
 const FeaturedDestination = () => {
-
-    const navigate=useNavigate() ;
-  return (
+    const {rooms ,navigate}=useAppContext();
+  
+  return rooms.length > 0 && (
     <div className='flex flex-col items-center px-6 md:px-16 lg:px-24 bg-slate-50 py-20'>
       <Title
        title="Featured Halls"
@@ -16,7 +17,7 @@ const FeaturedDestination = () => {
       />
 
        <div className='flex flex-wrap items-center justify-center gap-6 mt-20'>
-        {roomsDummyData.slice(0,2).map((room,index)=>(
+        {rooms.slice(0,2).map((room,index)=>(
            <HallCard key={room._id} room={room} index ={index}/> 
         ))}
          </div>
