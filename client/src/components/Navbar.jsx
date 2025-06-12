@@ -3,9 +3,10 @@ import { Link, useLocation } from "react-router-dom";
 import { assets } from "../assets/assets";
 import { useClerk, UserButton, useUser } from "@clerk/clerk-react";
 import { useAppContext } from "../context/AppContext";
+//import { useUser } from "@clerk/clerk-react";
 
 const BookIcon = () => (
-    <svg className="w-4 h-4 text-gray-700" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" >
+    <svg className="w-4 h-4 text-gray-700" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 19V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v13H7a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h12M9 3v14m7 0v4" />
     </svg>
 );
@@ -22,27 +23,57 @@ const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const { openSignIn } = useClerk();
     const location = useLocation();
-
     const { navigate, setShowHotelReg } = useAppContext();
 
-    const { user } = useUser(); // Clerk user
+    
     const [dbUser, setDbUser] = useState(null);
-
+    const [loading, setLoading] = useState(true);
+    const { isLoaded, user } = useUser();
     useEffect(() => {
-        if (user) {
-            const fetchUserData = async () => {
-                try {
-                    const response = await fetch(`/api/users/${user.primaryEmailAddress.emailAddress}`);
-                    const data = await response.json();
-                    setDbUser(data);
-                } catch (err) {
-                    console.error("Error fetching user data:", err);
-                }
-            };
+    if (!isLoaded) {
+        console.log("User not loaded yet...");
+        return; // Wait until the user is fully loaded
+    }
 
-            fetchUserData();
-        }
-    }, [user]);
+    console.log("User from Clerk:", user);
+
+    if (user) {
+        const fetchUserData = async () => {
+            try {
+                const email = user.primaryEmailAddress.emailAddress;
+                console.log("Fetching user from API using email:", email);
+
+                const response = await fetch(`/api/users/${email}`);
+
+                if (!response.ok) {
+                    console.error("API Error:", response.status, response.statusText);
+                    return;
+                }
+
+                const data = await response.json();
+                console.log("API Response data:", data);
+
+                if (data && data.role) {
+                    setDbUser(data);
+                    console.log("DB User set successfully:", data);
+                } else {
+                    console.warn("No role found in fetched user data:", data);
+                }
+
+            } catch (err) {
+                console.error("Error fetching user data:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    } else {
+        console.warn("No user logged in.");
+        setLoading(false);
+    }
+}, [isLoaded, user]);
+
 
     useEffect(() => {
         if (location.pathname !== '/') {
@@ -51,7 +82,6 @@ const Navbar = () => {
         } else {
             setIsScrolled(false);
         }
-        setIsScrolled(prev => location.pathname !== '/' ? true : prev);
 
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 10);
@@ -76,14 +106,16 @@ const Navbar = () => {
                         <div className={`${isScrolled ? "bg-gray-700" : "bg-white"} h-0.5 w-0 group-hover:w-full transition-all duration-300`} />
                     </a>
                 ))}
-                {user && dbUser?.role === "hotelOwner" && (
+
+                {!loading && user && dbUser?.role === "hotelOwner" && (
                     <button
                         className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${isScrolled ? 'text-black' : 'text-white'} transition-all`}
                         onClick={() => navigate('/owner')}>
                         Dashboard
                     </button>
                 )}
-                {user && dbUser?.role !== "hotelOwner" && (
+
+                {!loading && user && dbUser?.role !== "hotelOwner" && (
                     <button
                         className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${isScrolled ? 'text-black' : 'text-white'} transition-all`}
                         onClick={() => setShowHotelReg(true)}>
@@ -94,7 +126,7 @@ const Navbar = () => {
 
             {/* Desktop Right */}
             <div className="hidden md:flex items-center gap-4">
-                <img src={assets.searchIcon} alt="search" className={`${isScrolled && 'invert'} h-7 transition-all duration-500 `} />
+                <img src={assets.searchIcon} alt="search" className={`${isScrolled && 'invert'} h-7 transition-all duration-500`} />
                 {user ? (
                     <UserButton>
                         <UserButton.MenuItems>
@@ -125,7 +157,7 @@ const Navbar = () => {
                         </UserButton.MenuItems>
                     </UserButton>
                 )}
-                <img onClick={() => setIsMenuOpen(!isMenuOpen)} src={assets.menuIcon} alt="" className={`${isScrolled && 'invert'} h-4  `} />
+                <img onClick={() => setIsMenuOpen(!isMenuOpen)} src={assets.menuIcon} alt="menu" className={`${isScrolled && 'invert'} h-4`} />
             </div>
 
             {/* Mobile Menu */}
@@ -140,13 +172,13 @@ const Navbar = () => {
                     </a>
                 ))}
 
-                {user && dbUser?.role === "hotelOwner" && (
+                {!loading && user && dbUser?.role === "hotelOwner" && (
                     <button className="border px-4 py-1 text-sm font-light rounded-full cursor-pointer transition-all" onClick={() => { navigate('/owner'); setIsMenuOpen(false); }}>
                         Dashboard
                     </button>
                 )}
 
-                {user && dbUser?.role !== "hotelOwner" && (
+                {!loading && user && dbUser?.role !== "hotelOwner" && (
                     <button className="border px-4 py-1 text-sm font-light rounded-full cursor-pointer transition-all" onClick={() => { setShowHotelReg(true); setIsMenuOpen(false); }}>
                         List Your Hotel
                     </button>
