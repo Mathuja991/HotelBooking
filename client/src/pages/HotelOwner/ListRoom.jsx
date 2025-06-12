@@ -3,37 +3,34 @@ import React, { useEffect, useState } from 'react';
 import Title from '../../components/Title';
 import { useAppContext } from '../../context/AppContext';
 
- const ListRoom = () => {
+export const ListRoom = () => {
 
 
 const [rooms, setRooms] = useState([])
 const {axios, getToken, user} = useAppContext()
 
 // Fetch Rooms of the Hotel Owner
-const fetchRooms = async () => {
-  try {
-    const token = await getToken();
-    console.log("Token:", token);
+const fetchRooms = async ()=>{
+    try {
 
-    const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/rooms/owner`, { headers: { Authorization: `Bearer ${await getToken()}` } });
-
-
-    console.log("Fetch response:", data);
-
-    if (data.success) {
-      setRooms(data.rooms);
-    } else {
-      toast.error(data.message);
+      const { data } = await axios.get('/api/rooms/owner', {headers:
+        {Authorization : `Bearer ${await getToken()}`}
+      })
+   
+    if (data.success){
+        setRooms(data.rooms)
+    
+    }else{
+      toast.error(data.message)
     }
 
-  } catch (error) {
-    console.error("Fetch error:", error);
-    toast.error(error.message);
+    }catch(error){
+       toast.error(error.message)
+    }
+    
   }
-};
-
     const toggleAyailability = async (roomId)=>{
-      const {data} = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/rooms/toggle-availability`, {roomId},
+      const {data} = await axios.post('/api/rooms/toggle-availability', {roomId},
       {headers: {Authorization: `Bearer ${await getToken()} `}})
       if (data.success) {
          toast.success(data.message)
