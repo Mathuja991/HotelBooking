@@ -3,34 +3,42 @@ import Hotel from "../models/Hotel.js"
 import {v2 as cloudinary} from "cloudinary";
 import Room from "../models/Room.js";
 
-export const createRoom = async (req,res)=>{
-    try{
-       const {roomType,pricePerNight,amenities}= req.body
-       const hotel =await Hotel.findOne({owner:req.auth,userId})
-       if(!hotel) return res.json({success:false,message: "No Hotel Found"});
+import { getAuth } from "@clerk/express";
 
-       const uploadImages =req.files.map(async (file) => {
-         const responce= await connectCloudinary.uploder.upload(file.path);
-         return responce.secure_url;
+export const createRoom = async (req, res) => {
+    try {
+        const { userId } = getAuth(req);  // ✅ Proper way to get the user ID
 
-       })
+        if (!userId) return res.json({ success: false, message: "User not authenticated" });
 
-     const images=  await Promise.all(uploadImages)
-     await Room.create({
-        hotel:hotel_id,
-        roomType,
-        pricePerNight: +pricePerNight,
-        amenities:JSON.parse(amenities),
-        images,
-     })
-      res.json({success:true ,message :" Room created successfully"})
-    }catch(error){
-       res.json({success:false ,message :error.message})
+        const { roomType, pricePerNight, amenities } = req.body;
 
+        // ✅ Find hotel by the authenticated owner ID
+        const hotel = await Hotel.findOne({ owner: userId });
+        if (!hotel) return res.json({ success: false, message: "No Hotel Found" });
+
+        // ✅ Fix Cloudinary upload typo
+        const uploadImages = req.files.map(async (file) => {
+            const response = await cloudinary.uploader.upload(file.path); // corrected cloudinary method
+            return response.secure_url;
+        });
+
+        const images = await Promise.all(uploadImages);
+
+        await Room.create({
+            hotel: hotel._id, // fixed: correct hotel reference
+            roomType,
+            pricePerNight: +pricePerNight,
+            amenities: JSON.parse(amenities),
+            images,
+        });
+
+        res.json({ success: true, message: "Room created successfully" });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
     }
+};
 
-
-}
 
 export const getRooms = async (req,res)=>{
     try {
@@ -49,18 +57,19 @@ export const getRooms = async (req,res)=>{
     }
 
 
-export const getOwnerrooms = async (req,res)=>{
+export const getOwnerrooms = async (req, res) => {
     try {
-        const hotelData = await Hotel({owner: req.auth.userId})
-        const rooms = await Room.find({hotel: hotelData ._id.toString() }).populate("hotel");
+        const { userId } = getAuth(req);
+        const hotelData = await Hotel.findOne({ owner: userId });
+        if (!hotelData) return res.json({ success: false, message: "No Hotel Found" });
 
-        res. json({success: true, rooms});
-        } catch (error) {
-            res.json({success: false, message: error.message});
-        }
+        const rooms = await Room.find({ hotel: hotelData._id.toString() }).populate("hotel");
 
-}
-
+        res.json({ success: true, rooms });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+};
 
 export const toggleRoomAvailability = async (req,res)=>{
         try {
