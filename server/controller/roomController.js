@@ -5,28 +5,31 @@ import Room from "../models/Room.js";
 
 import { getAuth } from "@clerk/express";
 
+import { getAuth } from "@clerk/express";
+import Hotel from "../models/Hotel.js";
+import cloudinary from "../config/cloudinary.js";
+import Room from "../models/Room.js";
+
 export const createRoom = async (req, res) => {
     try {
-        const { userId } = getAuth(req);  // ✅ Proper way to get the user ID
+        const { userId } = getAuth(req);
 
         if (!userId) return res.json({ success: false, message: "User not authenticated" });
 
         const { roomType, pricePerNight, amenities } = req.body;
 
-        // ✅ Find hotel by the authenticated owner ID
         const hotel = await Hotel.findOne({ owner: userId });
         if (!hotel) return res.json({ success: false, message: "No Hotel Found" });
 
-        // ✅ Fix Cloudinary upload typo
         const uploadImages = req.files.map(async (file) => {
-            const response = await cloudinary.uploader.upload(file.path); // corrected cloudinary method
+            const response = await cloudinary.uploader.upload(file.path);
             return response.secure_url;
         });
 
         const images = await Promise.all(uploadImages);
 
         await Room.create({
-            hotel: hotel._id, // fixed: correct hotel reference
+            hotel: hotel._id,
             roomType,
             pricePerNight: +pricePerNight,
             amenities: JSON.parse(amenities),
