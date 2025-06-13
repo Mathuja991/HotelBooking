@@ -33,6 +33,11 @@ export const ListRoom = () => {
 
   const toggleAvailability = async (roomId) => {
     try {
+       setRooms(prevRooms =>
+       prevRooms.map(room =>
+       room._id === roomId ? { ...room, isAvailable: !room.isAvailable } : room
+       )
+    );
       const { data } = await axios.post('/api/rooms/toggle-availability',
         { roomId },
         { headers: { Authorization: `Bearer ${await getToken()}` } }
@@ -46,6 +51,12 @@ export const ListRoom = () => {
       }
     } catch (error) {
       toast.error(error.message);
+
+      setRooms(prevRooms =>
+      prevRooms.map(room =>
+        room._id === roomId ? { ...room, isAvailable: !room.isAvailable } : room
+      )
+    );
     }
   };
 
