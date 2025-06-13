@@ -1,6 +1,7 @@
 import Booking from "../models/Booking.js";
 import Room from "../models/Room.js";
 import Hotel from "../models/Hotel.js";
+import transporter from "../configs/nodemailer.js";
 
 
 const checkAvailability = async ({ checkInDate, checkOutDate, room })=>{
@@ -33,53 +34,78 @@ const checkAvailability = async ({ checkInDate, checkOutDate, room })=>{
  }
 
 
- export const createBooking = async (req, res) =>{
+export const createBooking = async (req, res) => {
     try {
-    const { room, checkInDate, checkOutDate, guests } = req.body;
-    const user = req.user._id;
+        const { room, checkInDate, checkOutDate, guests } = req.body;
+        const user = req.user._id;
 
-    // Before Booking Check Availability
-    const isAvailable = await checkAvailability({
-    checkInDate,
-    checkOutDate,
-    room
-    });
-    
-    
+        // Check availability before creating booking
+        const isAvailable = await checkAvailability({ checkInDate, checkOutDate, room });
 
-    if(!isAvailable){
-    return res.json({success: false, message: "Room is not available"})
-    }
-    // Get totalPrice from Room
-    const roomData = await Room.findById(room).populate("hotel");
-    let totalPrice = roomData.pricePerNight;
-     
+        if (!isAvailable) {
+            return res.json({ success: false, message: "Room is not available" });
+        }
 
-    // Calculate totalPrice based on nights
-    const checkIn = new Date(checkInDate)
-    const checkOut = new Date(checkOutDate)
-    const timeDiff = checkOut.getTime() - checkIn.getTime();
-    const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
+        // Get room data with hotel details
+        const roomData = await Room.findById(room).populate("hotel");
+        let totalPrice = roomData.pricePerNight;
 
-    totalPrice *= nights;
-    const booking = await Booking.create({
-    user,
-    room,
-    hotel: roomData.hotel ._id,
-    guests: +guests,
-    checkInDate,
-    checkOutDate,
-    totalPrice,
-    })
+        // Calculate total nights
+        const checkIn = new Date(checkInDate);
+        const checkOut = new Date(checkOutDate);
+        const timeDiff = checkOut.getTime() - checkIn.getTime();
+        const nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
-    res.json({ success: true, message: "Booking created successfully"})
+        totalPrice *= nights;
 
+        // Create the booking
+        const booking = await Booking.create({
+            user,
+            room,
+            hotel: roomData.hotel._id,
+            guests: +guests,
+            checkInDate,
+            checkOutDate,
+            totalPrice,
+        });
+
+        // Email options
+        const mailOptions = {
+            from: process.env.SENDER_EMAIL,
+            to: req.user.email,
+            subject: 'Hotel Booking Details',
+            html: `
+                <h2>Your Booking Details</h2>
+                <p>Dear ${req.user.username},</p>
+                <p>Thank you for your booking! Here are your details:</p>
+                <ul>
+                    <li><strong>Booking ID:</strong> ${booking._id}</li>
+                    <li><strong>Hotel Name:</strong> ${roomData.hotel.name}</li>
+                    <li><strong>Location:</strong> ${roomData.hotel.address}</li>
+                    <li><strong>Check-in Date:</strong> ${booking.checkInDate.toDateString()}</li>
+                    <li><strong>Total Price:</strong> ${process.env.CURRENCY || '$'}${booking.totalPrice}</li>
+                </ul>
+                <p>We look forward to welcoming you!</p>
+                <p>If you need to make any changes, feel free to contact us.</p>
+            `
+        };
+
+        // Send booking confirmation email
+            try {
+        await transporter.sendMail(mailOptions);
+        console.log("Booking email sent successfully");
+        } catch (emailError) {
+        console.error("Failed to send booking email:", emailError);
+        }
+
+
+        res.json({ success: true, message: "Booking created successfully" });
     } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: "Failed to create booking"})
-   
+        console.log(error);
+        res.json({ success: false, message: "Failed to create booking" });
     }
 };
+
 
 export const getUserBookings = async (req, res) =>{
     try {
