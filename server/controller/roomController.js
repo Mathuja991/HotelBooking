@@ -20,7 +20,7 @@ export const createRoom = async (req, res) => {
 
     if (!userId) return res.json({ success: false, message: "User not authenticated" });
 
-    const { roomType, pricePerNight, amenities } = req.body;
+    const { roomType, pricePerNight,capacity, amenities } = req.body;
 
     const hotel = await Hotel.findOne({ owner: userId });
     if (!hotel) return res.json({ success: false, message: "No Hotel Found" });
@@ -36,6 +36,7 @@ export const createRoom = async (req, res) => {
       hotel: hotel._id,
       roomType,
       pricePerNight: +pricePerNight,
+      capacity,
       amenities: JSON.parse(amenities),
       images,
     });
