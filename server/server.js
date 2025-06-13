@@ -19,7 +19,10 @@ connectCloudinary();
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173', // ✅ Your frontend URL
+    credentials: true // ✅ Allow cookies, auth headers, etc.
+}));
 
 // ✅ Webhook must parse raw body and be ABOVE express.json()
 app.post('/api/clerk', bodyParser.raw({ type: '*/*' }), clerkWebhooks);
