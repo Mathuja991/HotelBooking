@@ -171,8 +171,8 @@ const Allrooms = () => {
                 <img src={assets.locationIcon} alt="location-icon" />
                 <span>{room.hotel.address}</span>
               </div>
-              <div className='flex items-center gap-2 mt-2'>
-                <img src={assets.capacityIcon} alt="capacity-icon" className='w-5 h-5' />
+              <div className='flex items-center gap-1 text-black-50 mt-2'>
+               
                 <span>Capacity: {room.capacity} guests</span>
               </div>
               <div className='flex flex-wrap items-center mt-3 mb-6 gap-4'>
