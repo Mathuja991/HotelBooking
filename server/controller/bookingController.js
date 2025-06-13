@@ -29,47 +29,46 @@ export const checkAvailabilityAPI = async (req, res) => {
 
 
 
+
 export const createBooking = async (req, res) => {
-  try {
-    // your existing booking creation code...
+    try {
+        // Assume you save booking here and get booking details
+        const booking = await Booking.create({ ...req.body, user: req.user._id });
 
-    // Email options:
-    const mailOptions = {
-      to: req.user.email,
-      subject: "Hotel Booking Details",
-      html: `
-        <h2>Your Booking Details</h2>
-        <p>Dear ${req.user.username},</p>
-        <ul>
-          <li><b>Booking ID:</b> ${booking._id}</li>
-          <li><b>Hotel Name:</b> ${roomData.hotel.name}</li>
-          <li><b>Location:</b> ${roomData.hotel.address}</li>
-          <li><b>Check-in Date:</b> ${booking.checkInDate.toDateString()}</li>
-          <li><b>Total Price:</b> ${process.env.CURRENCY || '$'}${booking.totalPrice}</li>
-        </ul>
-      `,
-    };
+        // Prepare email content
+        const emailContent = `
+Dear ${req.user.username},
 
-   console.log("📧 Email to be sent to:", req.user.email);
+Your booking has been successfully confirmed.
 
-try {
-  await sendEmail({
-    to: req.user.email,
-    subject: 'Hotel Booking Details',
-    text: 'Your booking is confirmed.'
-  });
-  console.log("✅ Booking email sent successfully");
-} catch (emailError) {
-  console.error("❌ Failed to send booking email:", emailError);
-}
+Booking Details:
+- Room Type: ${booking.roomType}
+- Capacity: ${booking.capacity} people
+- Price Per Night: $${booking.pricePerNight}
 
+Thank you for choosing Kanapathi Hall!
 
+Regards,
+Kanapathi Hall Team
+`;
 
-    res.json({ success: true, message: "Booking created successfully" });
-  } catch (error) {
-    console.error(error);
-    res.json({ success: false, message: "Failed to create booking" });
-  }
+        // Send email
+        try {
+            await sendEmail({
+                to: req.user.email,
+                subject: 'Kanapathi Hall Booking Confirmation',
+                text: emailContent
+            });
+            console.log("Booking email sent successfully");
+        } catch (emailError) {
+            console.error("Failed to send booking email:", emailError);
+        }
+
+        res.status(201).json({ success: true, booking });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Booking failed' });
+    }
 };
 
 export const getUserBookings = async (req, res) => {
