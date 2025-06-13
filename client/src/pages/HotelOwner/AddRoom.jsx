@@ -25,18 +25,20 @@ const AddRoom = () => {
         'Security Staff': false,
     };
 
-    const [inputs, setInputs] = useState({
-        roomType: '',
-        pricePerNight: '',
-        amenities: initialAmenities,
-    });
+   const [inputs, setInputs] = useState({
+    roomType: '',
+    pricePerNight: '',
+    capacity: '', // Added this
+    amenities: initialAmenities,
+});
+
 
     const [loading, setLoading] = useState(false);
 
     const onSubmitHandler = async (e) => {
         e.preventDefault();
 
-        if (!inputs.roomType || !inputs.pricePerNight || !Object.values(images).some(image => image)) {
+        if (!inputs.roomType || !inputs.pricePerNight || !inputs.capacity ||!Object.values(images).some(image => image)) {
             toast.error("Please fill in all the details");
             return;
         }
@@ -46,6 +48,7 @@ const AddRoom = () => {
             const formData = new FormData();
             formData.append('roomType', inputs.roomType);
             formData.append('pricePerNight', inputs.pricePerNight);
+            formData.append('capacity', inputs.capacity);
 
             const amenities = Object.keys(inputs.amenities).filter(key => inputs.amenities[key]);
             formData.append('amenities', JSON.stringify(amenities));
@@ -116,7 +119,17 @@ const AddRoom = () => {
                         />
                     </div>
                 </div>
-
+                
+                <div>
+                    <p className='mt-4 text-gray-800'>Capacity <span className='text-xs'>(People)</span></p>
+                    <input
+                        type="number"
+                        placeholder='0'
+                        className='border border-gray-300 mt-1 rounded p-2 w-24'
+                        value={inputs.capacity}
+                        onChange={e => setInputs({ ...inputs, capacity: e.target.value })}
+                    />
+                </div>
                 <p className='text-gray-800 font-semibold mt-8 mb-2'>Amenities</p>
                 <div className='flex flex-col flex-wrap mt-1 text-gray-400 max-w-xl'>
                     {Object.keys(inputs.amenities).map((amenity, index) => (

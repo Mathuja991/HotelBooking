@@ -22,7 +22,8 @@ export const AppProvider = ({ children }) => {
     const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/rooms`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-    console.log("Fetched rooms: ", data);
+    console.log("Fetched rooms: ", data.rooms);
+    console.log(axios.defaults.baseURL)
     setRooms(data.rooms);
   } catch (error) {
     console.error(error);
