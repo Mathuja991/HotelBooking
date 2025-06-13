@@ -95,3 +95,21 @@ export const toggleRoomAvailability = async (req,res)=>{
     }
 
 
+    export const deleteRoom = async (req, res) => {
+  try {
+    const { roomId } = req.params;
+
+    const room = await Room.findByIdAndDelete(roomId);
+
+    if (!room) {
+      return res.status(404).json({ success: false, message: 'Room not found' });
+    }
+
+    res.status(200).json({ success: true, message: 'Room deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+
+
