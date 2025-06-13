@@ -33,7 +33,6 @@ const checkAvailability = async ({ checkInDate, checkOutDate, room })=>{
     }
  }
 
-
 export const createBooking = async (req, res) => {
     try {
         const { room, checkInDate, checkOutDate, guests } = req.body;
@@ -83,6 +82,7 @@ export const createBooking = async (req, res) => {
                     <li><strong>Hotel Name:</strong> ${roomData.hotel.name}</li>
                     <li><strong>Location:</strong> ${roomData.hotel.address}</li>
                     <li><strong>Check-in Date:</strong> ${booking.checkInDate.toDateString()}</li>
+                    <li><strong>Check-out Date:</strong> ${booking.checkOutDate.toDateString()}</li>
                     <li><strong>Total Price:</strong> ${process.env.CURRENCY || '$'}${booking.totalPrice}</li>
                 </ul>
                 <p>We look forward to welcoming you!</p>
@@ -91,13 +91,12 @@ export const createBooking = async (req, res) => {
         };
 
         // Send booking confirmation email
-            try {
-        await transporter.sendMail(mailOptions);
-        console.log("Booking email sent successfully");
+        try {
+            await transporter.sendMail(mailOptions);
+            console.log("Booking email sent successfully");
         } catch (emailError) {
-        console.error("Failed to send booking email:", emailError);
+            console.error("Failed to send booking email:", emailError);
         }
-
 
         res.json({ success: true, message: "Booking created successfully" });
     } catch (error) {
