@@ -19,10 +19,10 @@ const AddRoom = () => {
         'Parking': false,
         'Catering Service': false,
         'Decoration': false,
-        'Restrooms': false,
+     
         'Power Backup': false,
         'Free Wifi': false,
-        'Security Staff': false,
+       
     };
 
    const [inputs, setInputs] = useState({

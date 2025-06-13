@@ -39,7 +39,20 @@ import uploadArea from "./uploadArea.svg";
 import totalBookingIcon from "./totalBookingIcon.svg";
 import totalRevenueIcon from "./totalRevenueIcon.svg";
 
+import airconditioningIcon from "./airconditioningIcon.png"
+import projectorIcon from "./projectorIcon.png"
+import soundlIcon from "./soundIcon.png"
+import LightingIcon from "./lightingIcon.png"
+import StageIcon from "./stageIcon.png"
+import ChairsandTablesIcon from "./ChairsandTablesIcon.png"
+import ParkingIcon from "./ParkingIcon.png"
+import  DecorationIcon from "./DecorationIcon.png"
+import  PowerBackupIcon from "./PowerBackupIcon.png"
 
+    
+   
+   
+   
 export const assets = {
     logo,
     hall,
@@ -74,6 +87,20 @@ export const assets = {
     uploadArea,
     totalBookingIcon,
     totalRevenueIcon,
+
+    
+    airconditioningIcon,
+    projectorIcon,
+    soundlIcon,
+
+    LightingIcon,
+    StageIcon,
+    ChairsandTablesIcon,
+    ParkingIcon,
+    DecorationIcon,
+    PowerBackupIcon,
+   
+   
 }
 
 export const cities = [
@@ -99,11 +126,20 @@ export const testimonials = [
 
 // Facility Icon
 export const facilityIcons = {
-    "Free WiFi": assets.freeWifiIcon,
-    "Free Breakfast": assets.freeBreakfastIcon,
-    "Room Service": assets.roomServiceIcon,
-    "Mountain View": assets.mountainIcon,
-    "Pool Access": assets.poolIcon,
+    "Free Wifi": assets.freeWifiIcon,
+    "Catering Service": assets.freeBreakfastIcon,
+    "Air Conditioning": assets.airconditioningIcon,
+    "Projector": assets.projectorIcon,
+    "Sound System": assets.soundlIcon,
+    "Lighting":assets.LightingIcon,
+    "Stage":assets.StageIcon,
+    "Chairs and Tables":assets.ChairsandTablesIcon,
+    "Parking":assets.ParkingIcon,
+    "Decoration":assets.DecorationIcon,
+    
+    "Power Backup":assets.PowerBackupIcon,
+    "Security Staff":assets.SecurityStaffIcon,
+
 };
 
 // For Room Details Page
