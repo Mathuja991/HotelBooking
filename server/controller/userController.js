@@ -3,24 +3,22 @@ import User from "../models/User.js";
 
 const PRIMARY_OWNER_EMAIL = process.env.PRIMARY_OWNER_EMAIL || "mathujaparameshwaran@gmail.com";
 
+// userController.js
 export const getUserData = async (req, res) => {
   try {
-    const userId = req.user.id; // user id from token
-    const user = await User.findById(userId);
+    const userId = req.user._id;  // assuming req.user is set by protect middleware
+    const user = await User.findById(userId).select('-password'); // exclude password
 
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    // Override role if the user's email matches the primary owner email
-    const role = user.email === PRIMARY_OWNER_EMAIL ? "hotelOwner" : user.role;
-    const recentSearchedCities = user.recentSearchedCities;
-
-    res.json({ success: true, role, recentSearchedCities });
+    res.json({ success: true, user });
   } catch (error) {
-    res.json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
+
 export const storeRecentSearchedCities = async (req,res)=>{
     try{
         const {recentSearchedCity}=req.body
@@ -44,12 +42,12 @@ export const storeRecentSearchedCities = async (req,res)=>{
 
 export const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password'); // exclude sensitive info
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
     res.json({ success: true, user });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Failed to fetch user' });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
+

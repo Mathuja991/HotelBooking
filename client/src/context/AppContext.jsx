@@ -77,30 +77,23 @@ export const AppProvider = ({ children }) => {
 
   
 
-useEffect(() => {
-    const fetchUser = async () => {
-        if (user) {
-            try {
-const { data } = await axios.get(`/api/users/${user.id}`, {
-    headers: { Authorization: `Bearer ${await getToken()}` }
-});
+const fetchUserData = async () => {
+  try {
+    const token = await getToken(); // get auth token
+    const { data } = await axios.get('/api/users', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
+    if (data.success) {
+      setUser(data.user); // save user in state
+    } else {
+      toast.error(data.message || 'Failed to load user');
+    }
+  } catch (error) {
+    toast.error(error.message);
+  }
+};
 
-
-                console.log('Fetched user data:', data.user);
-                if (data.user && data.user.role === 'hotelOwner') {
-                    setIsOwner(true);
-                } else {
-                    setIsOwner(false);
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error.message);
-            }
-        }
-    };
-
-    fetchUser();
-}, [user]);
 
 
   const value = {

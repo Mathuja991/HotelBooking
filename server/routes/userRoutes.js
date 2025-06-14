@@ -5,7 +5,7 @@ import { getUserData, storeRecentSearchedCities,getUserById } from "../controlle
 const userRouter =express.Router();
 userRouter.get('/',protect,getUserData);
 userRouter.post('/store-recent-search',protect,storeRecentSearchedCities);
-userRouter.get('/:id', protect, getUserById);
+userRouter.get('/', protect, getUserById);
 
 
 
