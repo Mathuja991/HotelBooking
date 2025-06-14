@@ -8,10 +8,10 @@ const Login = () => {
 
   return (
     <SignIn
-      afterSignIn={async () => {
-        await fetchUser(); // ✅ Immediately fetch user data from your backend
-        navigate("/owner"); // ✅ Navigate to owner dashboard if needed
-      }}
+     afterSignIn={async () => {
+    await fetchUser();  // ✅ this triggers the role update logic
+    window.location.reload();  // ✅ force reload to reflect changes
+  }}
     />
   );
 };

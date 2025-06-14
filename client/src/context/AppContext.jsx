@@ -44,8 +44,10 @@ export const AppProvider = ({ children }) => {
         toast.error("No token found");
         return;
       }
+    const { data } = await axios.get(`/api/user?t=${Date.now()}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
-      const { data } = await axios.get("api/user", { headers: { Authorization: `Bearer ${token} ` } });
 
       if (data && data.success) {
         setIsOwner(data.role === "hotelOwner");
