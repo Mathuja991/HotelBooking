@@ -7,6 +7,28 @@ const PRIMARY_OWNER_EMAIL = process.env.PRIMARY_OWNER_EMAIL || "mathujaparameshw
 
 
 
+export const syncUserFromClerk = async (clerkUser) => {
+  const ownerEmail = process.env.PRIMARY_OWNER_EMAIL || "mathujaparameshwaran@gmail.com";
+
+  const role = clerkUser.email === ownerEmail ? "hotelOwner" : "user";
+
+  const filter = { email: clerkUser.email };
+  const update = {
+    _id: clerkUser.id,
+    username: clerkUser.username,
+    email: clerkUser.email,
+    image: clerkUser.image,
+    role,
+  };
+
+  const options = { upsert: true, new: true, setDefaultsOnInsert: true };
+
+  const user = await User.findOneAndUpdate(filter, update, options);
+  return user;
+};
+
+
+
 export const getUserData = async (req, res) => {
   try {
     const userId = req.user.id; // user id from token
