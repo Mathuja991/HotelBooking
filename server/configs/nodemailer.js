@@ -14,7 +14,7 @@ const sendEmail = async ({ to, subject, text }) => {
         console.log('Server is ready to take our messages');
 
         const info = await transporter.sendMail({
-            from: '"Kanapathi Hall" <pmathuja@gmail.com>',
+            from: '"Kanapathi Hall" <214mathu@gmail.com>',
             to,
             subject,
             text

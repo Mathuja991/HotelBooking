@@ -9,12 +9,7 @@ const Hero = () => {
     const [checkOut, setCheckOut] = useState('');
     const [guests, setGuests] = useState(1);
 
-    const onSearch = (e) => {
-        e.preventDefault();
-
-        // Navigate to rooms page with query parameters
-        navigate(`/rooms?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`);
-    };
+  
 
     return (
         <div className='flex flex-col items-start justify-center
@@ -25,60 +20,7 @@ const Hero = () => {
             </h1>
             <p className='max-w-130 mt-2 text-sm md:text-base'>Unparalleled luxury and comfort await at the world's most exclusive halls. Start your journey today.</p>
 
-            <div>
-                <form onSubmit={onSearch} className='bg-white text-gray-500 rounded-lg px-6 py-4 flex flex-col md:flex-row max-md:items-start gap-4 max-md:mx-auto'>
-
-                    <div>
-                        <div className='flex items-center gap-2'>
-                            <img src={assets.calenderIcon} alt="" className='h-4' />
-                            <label htmlFor="checkIn">Check in</label>
-                        </div>
-                        <input
-                            id="checkIn"
-                            type="date"
-                            value={checkIn}
-                            onChange={(e) => setCheckIn(e.target.value)}
-                            required
-                            className="rounded border border-gray-200 px-3 py-1.5 mt-1.5 text-sm outline-none"
-                        />
-                    </div>
-
-                    <div>
-                        <div className='flex items-center gap-2'>
-                            <img src={assets.calenderIcon} alt="" className='h-4' />
-                            <label htmlFor="checkOut">Check out</label>
-                        </div>
-                        <input
-                            id="checkOut"
-                            type="date"
-                            value={checkOut}
-                            onChange={(e) => setCheckOut(e.target.value)}
-                            required
-                            className="rounded border border-gray-200 px-3 py-1.5 mt-1.5 text-sm outline-none"
-                        />
-                    </div>
-
-                    <div className='flex md:flex-col max-md:gap-2 max-md:items-center'>
-                        <label htmlFor="guests">Guests</label>
-                        <input
-                            min={1}
-                            max={200}
-                            id="guests"
-                            type="number"
-                            value={guests}
-                            onChange={(e) => setGuests(e.target.value)}
-                            required
-                            className="rounded border border-gray-200 px-3 py-1.5 mt-1.5 text-sm outline-none max-w-16"
-                            placeholder="0"
-                        />
-                    </div>
-
-                    <button className='flex items-center justify-center gap-1 rounded-md bg-black py-3 px-4 text-white my-auto cursor-pointer max-md:w-full max-md:py-1'>
-                        <img src={assets.searchIcon} alt="searchicon" className='h-7' />
-                        <span>Search</span>
-                    </button>
-                </form>
-            </div>
+            
         </div>
     );
 };
