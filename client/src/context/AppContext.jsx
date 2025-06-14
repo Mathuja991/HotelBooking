@@ -15,6 +15,10 @@ export const AppProvider = ({ children }) => {
   const [showHotelReg, setShowHotelReg] = useState(false);
   const [searchedCities, setSearchedCities] = useState([]);
   const [rooms, setRooms] = useState([]);
+   
+    const [isAuthLoading, setIsAuthLoading] = useState(true);
+
+
 
   const fetchRooms = async () => {
   try {
@@ -62,6 +66,8 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (user) {
       fetchUser();
+    } else {
+      setIsAuthLoading(false); // When no user is logged in
     }
   }, [user]);
 

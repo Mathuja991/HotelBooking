@@ -13,6 +13,8 @@ import ListRoom from './pages/HotelOwner/ListRoom'
 import {Toaster} from 'react-hot-toast'
 import { useAppContext } from './context/AppContext'
 import HotelReg from './components/HotelReg'
+import ProtectedRoute from './components/ProtectedRoute';
+import Login from './pages/Login';
 
 const App = () => {
   
@@ -32,9 +34,10 @@ const App = () => {
           <Route path='/halls' element={<Allrooms />} />
           <Route path='/halls/:id' element={<RoomDetails />} />
           <Route path='/my-bookings' element={<MyBookings />} />
+           <Route path='/sign-in' element={<Login />} />
           <Route path='/owner' element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="add-hall" element={<AddRoom />} />
+            <Route index element={<Dashboard />}></Route>
+            <Route path="add-hall" element={<ProtectedRoute><AddRoom /></ProtectedRoute>} />
             <Route path="list-hall" element={<ListRoom />} />
           </Route>
         </Routes>

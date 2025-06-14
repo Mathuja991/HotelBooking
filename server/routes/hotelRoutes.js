@@ -14,5 +14,5 @@ hotelRouter.post(
   registerHotel
 );
 hotelRouter.get('/bookings', protect, getHotelBookings);
-hotelRouter.get('/api/hotels/myhotel', protect, getHotelByOwner);
+hotelRouter.post('/api/hotels/myhotel', protect, getHotelByOwner);
 export default hotelRouter;
