@@ -41,3 +41,15 @@ export const storeRecentSearchedCities = async (req,res)=>{
        res.json({success: false, message: error.message})
     }
 }
+
+export const getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password'); // exclude sensitive info
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    res.json({ success: true, user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch user' });
+  }
+};

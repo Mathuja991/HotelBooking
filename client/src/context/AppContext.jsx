@@ -75,6 +75,34 @@ export const AppProvider = ({ children }) => {
     fetchRooms();
   }, []);
 
+  
+
+useEffect(() => {
+    const fetchUser = async () => {
+        if (user) {
+            try {
+const { data } = await axios.get(`/api/users/${user.id}`, {
+    headers: { Authorization: `Bearer ${await getToken()}` }
+});
+
+
+
+                console.log('Fetched user data:', data.user);
+                if (data.user && data.user.role === 'hotelOwner') {
+                    setIsOwner(true);
+                } else {
+                    setIsOwner(false);
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error.message);
+            }
+        }
+    };
+
+    fetchUser();
+}, [user]);
+
+
   const value = {
     currency,
     user,

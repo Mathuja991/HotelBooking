@@ -16,6 +16,7 @@ const Navbar = () => {
         { name: 'Halls', path: '/halls' },
         { name: 'Experience', path: '/' },
         { name: 'About', path: '/' },
+         { name: 'My Bookings', path: '/my-bookings' },
     ];
 
     const [isScrolled, setIsScrolled] = useState(false);
@@ -66,6 +67,7 @@ const Navbar = () => {
                     >
                         {isOwner ? 'Dashboard' : 'List Your Hotel'}
                     </button>
+                    
                 )}
             </div>
 
