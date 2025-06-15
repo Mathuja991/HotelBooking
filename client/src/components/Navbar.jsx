@@ -115,21 +115,25 @@ const Navbar = () => {
                         {link.name}
                     </a>
                 ))}
-
-                {user && (
+                            {user && isOwner && (
                     <button
-                        className="border px-4 py-1 text-sm font-light rounded-full cursor-pointer transition-all"
-                        onClick={() => isOwner ? navigate('/owner') : setShowHotelReg(true)}
+                        className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${isScrolled ? 'text-black' : 'text-white'} transition-all`}
+                        onClick={() => navigate('/owner')}
                     >
-                        {isOwner ? 'Dashboard' : 'List Your Hotel'}
+                        Dashboard
                     </button>
                 )}
 
-                {!user && (
-                    <button onClick={openSignIn} className="bg-black text-white px-8 py-2.5 rounded-full transition-all duration-500">
-                        Login
+                {user && isOwner && (
+                    <button
+                        className={`border px-4 py-1 text-sm font-light rounded-full cursor-pointer ${isScrolled ? 'text-black' : 'text-white'} transition-all`}
+                        onClick={() => setShowHotelReg(true)}
+                    >
+                        List Your Hotel
                     </button>
                 )}
+
+
             </div>
         </nav>
     );

@@ -9,88 +9,83 @@ const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const currency = import.meta.env.VITE_CURRENCY || "$";
-  const { user } = useUser();
-  const { getToken } = useAuth();
+  const { user } = useUser(); // Clerk user (for auth)
+  const { getToken } = useAuth(); // Clerk token
   const [isOwner, setIsOwner] = useState(false);
   const [showHotelReg, setShowHotelReg] = useState(false);
   const [searchedCities, setSearchedCities] = useState([]);
   const [rooms, setRooms] = useState([]);
-   
+  const [backendUser, setBackendUser] = useState(null); // The user from your backend
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
-    const [isAuthLoading, setIsAuthLoading] = useState(true);
-
-
-
+  // ✅ Fetch all rooms
   const fetchRooms = async () => {
-  try {
-    const token = await getToken(); // from Clerk Auth
-    const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/rooms`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    console.log("Fetched rooms: ", data.rooms);
-    console.log(axios.defaults.baseURL)
-    setRooms(data.rooms);
-  } catch (error) {
-    console.error(error);
-    toast.error(error.message);
-  }
-};
-
-
-const fetchUser = async () => {
-  try {
-    const token = await getToken();
-    if (!token) {
-      toast.error("No token found");
-      return;
-    }
-
-    const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/user`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    console.log("Full fetched user response: ", data); // Log the whole response
-
-    // Check where the user object is
-    if (data && data.success ) {
-      setIsOwner(data.role === "hotelOwner");
-      console.log("User role check completed.");
-    } else {
-      setTimeout(fetchUser, 5000);
-      console.log("Retrying user fetch in 5 seconds...");
-    }
-  } catch (error) {
-    if (error.response && error.response.status === 401) {
-      toast.error("Session expired, please login again.");
-    } else {
+    try {
+      const token = await getToken();
+      const { data } = await axios.get(`/api/rooms`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      console.log("Fetched rooms: ", data.rooms);
+      setRooms(data.rooms);
+    } catch (error) {
+      console.error(error);
       toast.error(error.message);
     }
-    console.error(error);
-  }
-};
+  };
 
+  // ✅ Fetch user from your backend (with role)
+  const fetchUser = async () => {
+    try {
+      const token = await getToken();
+      if (!token) {
+        toast.error("No token found");
+        return;
+      }
 
+      const { data } = await axios.get(`/api/user`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      console.log("Full fetched user response:", data);
+
+      if (data && data.success) {
+        setIsOwner(data.user.role === "hotelOwner");
+        setBackendUser(data); // Store full backend user
+        console.log("User role check completed:", data.user.role);
+      } else {
+        setTimeout(fetchUser, 5000); // Retry if not successful
+        console.log("Retrying user fetch in 5 seconds...");
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        toast.error("Session expired, please login again.");
+      } else {
+        toast.error(error.message);
+      }
+      console.error(error);
+    } finally {
+      setIsAuthLoading(false);
+    }
+  };
+
+  // ✅ Run fetchUser when Clerk user changes
   useEffect(() => {
     if (user) {
       fetchUser();
     } else {
-      setIsAuthLoading(false); // When no user is logged in
+      setIsAuthLoading(false);
     }
   }, [user]);
 
+  // ✅ Run fetchRooms once on app load
   useEffect(() => {
     fetchRooms();
   }, []);
 
-  
-
-
-
-
-
   const value = {
     currency,
-    user,
+    user, // Clerk user (for email, image, etc.)
+    backendUser, // Backend user (for role, other custom fields)
     getToken,
     isOwner,
     setIsOwner,
@@ -101,6 +96,7 @@ const fetchUser = async () => {
     setSearchedCities,
     rooms,
     setRooms,
+    isAuthLoading,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
