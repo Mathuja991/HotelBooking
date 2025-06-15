@@ -6,7 +6,10 @@ const Footer = () => {
    <div className='bg-[#F6F9Fc] text-gray-500/80 pt-8 px-6 md:px-16 lg:px-24 xl:px-32'>
             <div className='flex flex-wrap justify-between gap-12 md:gap-6'>
                 <div className='max-w-80'>
-                    <img src={ assets.hall}alt="logo" className='mb-4 h-20 md:h-16  opacity-90' />
+                  <p className='mb-4 h-20 md:h-16 opacity-50 text-3xl font-bold font-serif flex items-center '>
+                    KANAPATHY HALL
+                </p>
+
                     <p className='text-sm'>
                         "Thank you for trusting us to host your most special moments."
                     </p>

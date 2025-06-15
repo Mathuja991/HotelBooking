@@ -15,6 +15,11 @@ export const AppProvider = ({ children }) => {
   const [showHotelReg, setShowHotelReg] = useState(false);
   const [searchedCities, setSearchedCities] = useState([]);
   const [rooms, setRooms] = useState([]);
+   
+
+    const [isAuthLoading, setIsAuthLoading] = useState(true);
+
+
 
   const fetchRooms = async () => {
   try {
@@ -32,42 +37,56 @@ export const AppProvider = ({ children }) => {
 };
 
 
-
-  const fetchUser = async () => {
-    try {
-      const token = await getToken();
-      if (!token) {
-        toast.error("No token found");
-        return;
-      }
-
-      const { data } = await axios.get("api/user", { headers: { Authorization: `Bearer ${token} ` } });
-
-      if (data && data.success) {
-        setIsOwner(data.role === "hotelOwner");
-        setSearchedCities(data.recentSearchedCities);
-      } else {
-        setTimeout(fetchUser, 5000);
-      }
-    } catch (error) {
-      if (error.response && error.response.status === 401) {
-        toast.error("Session expired, please login again.");
-      } else {
-        toast.error(error.message);
-      }
-      console.error(error);
+const fetchUser = async () => {
+  try {
+    const token = await getToken();
+    if (!token) {
+      toast.error("No token found");
+      return;
     }
-  };
+
+    const { data } = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/user`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    console.log("Full fetched user response: ", data); // Log the whole response
+
+    // Check where the user object is
+    if (data && data.success ) {
+      setIsOwner(data.role === "hotelOwner");
+      console.log("User role check completed.");
+    } else {
+      setTimeout(fetchUser, 5000);
+      console.log("Retrying user fetch in 5 seconds...");
+    }
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      toast.error("Session expired, please login again.");
+    } else {
+      toast.error(error.message);
+    }
+    console.error(error);
+  }
+};
+
 
   useEffect(() => {
     if (user) {
       fetchUser();
+    } else {
+      setIsAuthLoading(false); // When no user is logged in
     }
   }, [user]);
 
   useEffect(() => {
     fetchRooms();
   }, []);
+
+  
+
+
+
+
 
   const value = {
     currency,

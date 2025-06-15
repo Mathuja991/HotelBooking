@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config(); // Load .env FIRST ✅
 
+
 import express from "express";
 import cors from "cors";
 import connectDB from "./configs/db.js";
