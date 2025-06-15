@@ -2,7 +2,6 @@ import Booking from "../models/Booking.js";
 import Room from "../models/Room.js";
 import Hotel from "../models/Hotel.js";
 import sendEmail from '../configs/nodemailer.js';
-import mongoose from 'mongoose';
 
 const checkAvailability = async ({ checkInDate, checkOutDate, room }) => {
     try {
@@ -134,57 +133,44 @@ export const testEmail = async (req, res) => {
 
 // Controller: bookingController.js
 
+export const getOwnerHallsWithBookings = async (req, res) => {
+    try {
+        const ownerId = req.user.id;
 
+        const halls = await Hotel.find({ owner: ownerId });
 
+        const hallsWithBookings = await Promise.all(halls.map(async (hall) => {
+            const rooms = await Room.find({ hotel: hall._id });
+            const roomIds = rooms.map(room => room._id);
 
-export const getHotelRoomsWithBookings = async (req, res) => {
-  try {
-    // Get hotel ID from req.user or req.params or wherever you store it
-    const hotelId = req.user.hotelId || req.params.hotelId; // Adjust this to your setup
+            const bookings = await Booking.find({ room: { $in: roomIds } })
+                .populate('user', 'firstName email')
+                .populate('room', 'roomType');
 
-    if (!hotelId) {
-      return res.status(400).json({ success: false, message: 'Hotel ID not provided' });
-    }
+            const formattedBookings = bookings.map(booking => ({
+                userName: booking.user.firstName,
+                userEmail: booking.user.email,
+                roomType: booking.room.roomType,
+                checkInDate: booking.checkInDate,
+                checkOutDate: booking.checkOutDate,
+                totalPrice: booking.totalPrice,
+                guests: booking.guests,
+                status: booking.status,
+                paymentMethod: booking.paymentMethod,
+                isPaid: booking.isPaid
+            }));
 
-    // Convert to ObjectId (if stored as ObjectId)
-    const hotelObjectId = mongoose.Types.ObjectId(hotelId);
-
-    // Fetch rooms belonging to this hotel
-    const rooms = await Room.find({ hotel: hotelObjectId });
-
-    const roomIds = rooms.map(room => room._id);
-
-    // Fetch bookings for this hotel
-    const bookings = await Booking.find({ hotel: hotelObjectId })
-      .populate('user', 'firstName email')
-      .populate('room', 'roomType');
-
-    // Map bookings to rooms
-    const roomsWithBookings = rooms.map(room => {
-      const roomBookings = bookings
-        .filter(booking => booking.room._id.toString() === room._id.toString())
-        .map(booking => ({
-          userName: booking.user.firstName,
-          userEmail: booking.user.email,
-          checkInDate: booking.checkInDate,
-          checkOutDate: booking.checkOutDate,
-          totalPrice: booking.totalPrice,
-          guests: booking.guests,
-          status: booking.status,
-          paymentMethod: booking.paymentMethod,
-          isPaid: booking.isPaid
+            return {
+                hallId: hall._id,
+                hallName: hall.name,
+                hallLocation: hall.location,
+                bookings: formattedBookings
+            };
         }));
 
-      return {
-        ...room.toObject(),
-        bookings: roomBookings
-      };
-    });
-
-    res.json({ success: true, rooms: roomsWithBookings });
-
-  } catch (error) {
-    console.error('Error fetching hotel rooms with bookings:', error);
-    res.status(500).json({ success: false, message: 'Server Error' });
-  }
+        res.json({ success: true, halls: hallsWithBookings });
+    } catch (error) {
+        console.error('Error fetching owner halls with bookings:', error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
 };
