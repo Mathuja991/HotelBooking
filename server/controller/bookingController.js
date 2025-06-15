@@ -2,6 +2,7 @@ import Booking from "../models/Booking.js";
 import Room from "../models/Room.js";
 import Hotel from "../models/Hotel.js";
 import sendEmail from '../configs/nodemailer.js';
+import mongoose from 'mongoose';
 
 const checkAvailability = async ({ checkInDate, checkOutDate, room }) => {
     try {
@@ -135,45 +136,55 @@ export const testEmail = async (req, res) => {
 
 
 
-export const getOwnerRoomsWithBookings = async (req, res) => {
-    try {
-        const ownerId = req.user.id;
 
-        // Fetch rooms owned by the hotel owner
-        const rooms = await Room.find({ hotel: ownerId });
+export const getHotelRoomsWithBookings = async (req, res) => {
+  try {
+    // Get hotel ID from req.user or req.params or wherever you store it
+    const hotelId = req.user.hotelId || req.params.hotelId; // Adjust this to your setup
 
-        const roomIds = rooms.map(room => room._id);
-
-        // Fetch bookings for these rooms
-        const bookings = await Booking.find({ room: { $in: roomIds } })
-            .populate('user', 'firstName email') // Populate user info
-            .populate('room', 'roomType');       // Populate room type
-
-        // Group bookings under each room
-        const roomsWithBookings = rooms.map(room => {
-            const roomBookings = bookings
-                .filter(booking => booking.room._id.toString() === room._id.toString())
-                .map(booking => ({
-                    userName: booking.user.firstName,
-                    userEmail: booking.user.email,
-                    checkInDate: booking.checkInDate,
-                    checkOutDate: booking.checkOutDate,
-                    totalPrice: booking.totalPrice,
-                    guests: booking.guests,
-                    status: booking.status,
-                    paymentMethod: booking.paymentMethod,
-                    isPaid: booking.isPaid
-                }));
-
-            return {
-                ...room.toObject(),
-                bookings: roomBookings
-            };
-        });
-
-        res.json({ success: true, rooms: roomsWithBookings });
-    } catch (error) {
-        console.error('Error fetching owner rooms with bookings:', error);
-        res.status(500).json({ success: false, message: 'Server Error' });
+    if (!hotelId) {
+      return res.status(400).json({ success: false, message: 'Hotel ID not provided' });
     }
+
+    // Convert to ObjectId (if stored as ObjectId)
+    const hotelObjectId = mongoose.Types.ObjectId(hotelId);
+
+    // Fetch rooms belonging to this hotel
+    const rooms = await Room.find({ hotel: hotelObjectId });
+
+    const roomIds = rooms.map(room => room._id);
+
+    // Fetch bookings for this hotel
+    const bookings = await Booking.find({ hotel: hotelObjectId })
+      .populate('user', 'firstName email')
+      .populate('room', 'roomType');
+
+    // Map bookings to rooms
+    const roomsWithBookings = rooms.map(room => {
+      const roomBookings = bookings
+        .filter(booking => booking.room._id.toString() === room._id.toString())
+        .map(booking => ({
+          userName: booking.user.firstName,
+          userEmail: booking.user.email,
+          checkInDate: booking.checkInDate,
+          checkOutDate: booking.checkOutDate,
+          totalPrice: booking.totalPrice,
+          guests: booking.guests,
+          status: booking.status,
+          paymentMethod: booking.paymentMethod,
+          isPaid: booking.isPaid
+        }));
+
+      return {
+        ...room.toObject(),
+        bookings: roomBookings
+      };
+    });
+
+    res.json({ success: true, rooms: roomsWithBookings });
+
+  } catch (error) {
+    console.error('Error fetching hotel rooms with bookings:', error);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
 };
