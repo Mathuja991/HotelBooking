@@ -133,44 +133,56 @@ export const testEmail = async (req, res) => {
 
 // Controller: bookingController.js
 
-export const getOwnerHallsWithBookings = async (req, res) => {
+
+
+export const getOwnerRoomsWithBookings = async (req, res) => {
     try {
-        const ownerId = req.user.id;
+        const ownerId = req.user.id; // The logged-in hotel owner ID
 
-        const halls = await Hotel.find({ owner: ownerId });
+        // ✅ 1. Find all hotels owned by this owner
+        const hotels = await Hotel.find({ owner: ownerId });
+        if (hotels.length === 0) {
+            return res.json({ success: true, rooms: [] });
+        }
 
-        const hallsWithBookings = await Promise.all(halls.map(async (hall) => {
-            const rooms = await Room.find({ hotel: hall._id });
-            const roomIds = rooms.map(room => room._id);
+        const hotelIds = hotels.map(hotel => hotel._id.toString()); // ✅ use strings
 
-            const bookings = await Booking.find({ room: { $in: roomIds } })
-                .populate('user', 'firstName email')
-                .populate('room', 'roomType');
+        // ✅ 2. Find all rooms that belong to these hotels
+        const rooms = await Room.find({ hotel: { $in: hotelIds } });
 
-            const formattedBookings = bookings.map(booking => ({
-                userName: booking.user.firstName,
-                userEmail: booking.user.email,
-                roomType: booking.room.roomType,
-                checkInDate: booking.checkInDate,
-                checkOutDate: booking.checkOutDate,
-                totalPrice: booking.totalPrice,
-                guests: booking.guests,
-                status: booking.status,
-                paymentMethod: booking.paymentMethod,
-                isPaid: booking.isPaid
-            }));
+        const roomIds = rooms.map(room => room._id.toString());
+
+        // ✅ 3. Find all bookings for these hotels
+        const bookings = await Booking.find({ hotel: { $in: hotelIds } })
+            .populate('user', 'firstName email')
+            .populate('room', 'roomType');
+
+        // ✅ 4. Map bookings to each room
+        const roomsWithBookings = rooms.map(room => {
+            const roomBookings = bookings
+                .filter(booking => booking.room._id.toString() === room._id.toString())
+                .map(booking => ({
+                    userName: booking.user.firstName,
+                    userEmail: booking.user.email,
+                    checkInDate: booking.checkInDate,
+                    checkOutDate: booking.checkOutDate,
+                    totalPrice: booking.totalPrice,
+                    guests: booking.guests,
+                    status: booking.status,
+                    paymentMethod: booking.paymentMethod,
+                    isPaid: booking.isPaid
+                }));
 
             return {
-                hallId: hall._id,
-                hallName: hall.name,
-                hallLocation: hall.location,
-                bookings: formattedBookings
+                ...room.toObject(),
+                bookings: roomBookings
             };
-        }));
+        });
 
-        res.json({ success: true, halls: hallsWithBookings });
+        res.json({ success: true, rooms: roomsWithBookings });
+
     } catch (error) {
-        console.error('Error fetching owner halls with bookings:', error);
+        console.error('Error fetching owner rooms with bookings:', error);
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 };
