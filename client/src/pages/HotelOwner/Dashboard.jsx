@@ -11,32 +11,57 @@ const Dashboard = () => {
         totalBookings: 0,
         totalRevenue: 0,
     });
+const fetchDashboardData = async () => {
+    try {
+        const token = await getToken();
 
-    const fetchDashboardData = async () => {
-        try {
-            const { data } = await axios.get('/api/rooms/owner', {
-                headers: { Authorization: `Bearer ${await getToken()}` }
+        // Fetch owner bookings
+        const { data } = await axios.get('/api/bookings/owner', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        console.log('Full API response:', data);
+
+        if (data.success && Array.isArray(data.bookings)) {
+            // Group bookings by room
+            const roomsMap = {};
+
+            data.bookings.forEach(booking => {
+                const roomId = booking.roomId._id;
+
+                if (!roomsMap[roomId]) {
+                    roomsMap[roomId] = {
+                        _id: roomId,
+                        roomType: booking.roomId.roomType,
+                        capacity: booking.roomId.capacity,
+                        bookings: []
+                    };
+                }
+
+                roomsMap[roomId].bookings.push(booking);
             });
 
-            console.log('Full API response:', data);
+            const rooms = Object.values(roomsMap);
 
-            if (data.success && Array.isArray(data.rooms)) {
-                const totalBookings = data.rooms.reduce((sum, room) => sum + (room.bookings ? room.bookings.length : 0), 0);
-                const totalRevenue = data.rooms.reduce((sum, room) => sum + (room.bookings ? room.bookings.reduce((rSum, b) => rSum + (b.totalPrice || 0), 0) : 0), 0);
+            const totalBookings = data.bookings.length;
+            const totalRevenue = data.bookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0);
 
-                setDashboardData({
-                    rooms: data.rooms,
-                    totalBookings,
-                    totalRevenue,
-                });
-            } else {
-                toast.error(data.message || 'Dashboard data not available');
-            }
-        } catch (error) {
-            console.error('Error fetching dashboard data:', error);
-            toast.error(error.message);
+            setDashboardData({
+                rooms,
+                totalBookings,
+                totalRevenue
+            });
+        } else {
+            toast.error(data.message || 'Dashboard data not available');
         }
+
+    } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        toast.error(error.message);
     }
+};
+
+
 
     useEffect(() => {
         if (user) {
@@ -66,56 +91,38 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            <h2 className='text-xl text-blue-950/70 font-medium mb-5'>Your Halls and Bookings</h2>
-            <div className='w-full max-w-5xl text-left border border-gray-300 rounded-lg max-h-[600px] overflow-y-scroll'>
-                <table className='w-full'>
-                    <thead className='bg-gray-50'>
-                        <tr>
-                            <th className='py-3 px-4 text-gray-800 font-medium'> Hall Name </th>
-                            <th className='py-3 px-4 text-gray-800 font-medium text-center'> Capacity </th>
-                            <th className='py-3 px-4 text-gray-800 font-medium text-center'> Bookings </th>
-                        </tr>
-                    </thead>
-                    <tbody className='text-sm'>
-                        {dashboardData.rooms.map((room, index) => (
-                            <React.Fragment key={index}>
-                                <tr className="bg-gray-100">
-                                    <td className='py-3 px-4 text-gray-700 border-t border-gray-300'>
-                                        {room.roomType}
-                                    </td>
-                                    <td className='py-3 px-4 text-gray-700 border-t border-gray-300 text-center'>
-                                        {room.capacity}
-                                    </td>
-                                    <td className='py-3 px-4 text-gray-700 border-t border-gray-300 text-center'>
-                                        {room.bookings && room.bookings.length > 0 ? (
-                                            room.bookings.length + ' Bookings'
-                                        ) : (
-                                            'No Bookings'
-                                        )}
-                                    </td>
-                                </tr>
+         <div>
 
-                                {room.bookings && room.bookings.length > 0 && room.bookings.map((booking, i) => (
-                                    <tr key={i}>
-                                        <td className='py-2 px-4 text-gray-500 border-t border-gray-300 pl-8'>
-                                            <strong>Booked by:</strong> {booking.userName} ({booking.userEmail})
-                                        </td>
-                                        <td className='py-2 px-4 text-gray-500 border-t border-gray-300 text-center'>
-                                            <div><strong>Check-in:</strong> {new Date(booking.checkInDate).toLocaleDateString()}</div>
-                                            <div><strong>Check-out:</strong> {new Date(booking.checkOutDate).toLocaleDateString()}</div>
-                                        </td>
-                                        <td className='py-2 px-4 text-gray-500 border-t border-gray-300 text-center'>
-                                            <div><strong>Total Price:</strong> Rs. {booking.totalPrice}</div>
-                                            <div><strong>Guests:</strong> {booking.guests}</div>
-                                            <div><strong>Payment:</strong> {booking.isPaid ? 'Paid' : 'Not Paid'} ({booking.paymentMethod})</div>
-                                            <div><strong>Status:</strong> {booking.status}</div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </React.Fragment>
-                        ))}
-                    </tbody>
-                </table>
+                <h2 className='text-xl text-blue-950/70 font-medium my-5'>All Bookings</h2>
+<div className='w-full max-w-5xl text-left border border-gray-300 rounded-lg max-h-[600px] overflow-y-scroll'>
+    <table className='w-full'>
+        <thead className='bg-gray-50'>
+            <tr>
+                <th className='py-3 px-4 text-gray-800 font-medium'>Hall Name</th>
+                <th className='py-3 px-4 text-gray-800 font-medium'>Booked By</th>
+                <th className='py-3 px-4 text-gray-800 font-medium'>Check-In</th>
+                <th className='py-3 px-4 text-gray-800 font-medium'>Check-Out</th>
+                <th className='py-3 px-4 text-gray-800 font-medium'>Total Price</th>
+                <th className='py-3 px-4 text-gray-800 font-medium'>Payment</th>
+            </tr>
+        </thead>
+        <tbody className='text-sm'>
+            {dashboardData.rooms.map(room => (
+                room.bookings.map((booking, index) => (
+                    <tr key={index} className="bg-gray-100">
+                        <td className='py-3 px-4 text-gray-700 border-t border-gray-300'>{room.roomType}</td>
+                        <td className='py-3 px-4 text-gray-700 border-t border-gray-300'>{booking.userName} ({booking.userEmail})</td>
+                        <td className='py-3 px-4 text-gray-700 border-t border-gray-300'>{new Date(booking.checkInDate).toLocaleDateString()}</td>
+                        <td className='py-3 px-4 text-gray-700 border-t border-gray-300'>{new Date(booking.checkOutDate).toLocaleDateString()}</td>
+                        <td className='py-3 px-4 text-gray-700 border-t border-gray-300'>Rs. {booking.totalPrice}</td>
+                        <td className='py-3 px-4 text-gray-700 border-t border-gray-300'>{booking.isPaid ? 'Paid' : 'Not Paid'}</td>
+                    </tr>
+                ))
+            ))}
+        </tbody>
+    </table>
+</div>
+
             </div>
         </div>
     )
