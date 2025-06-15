@@ -130,3 +130,47 @@ export const testEmail = async (req, res) => {
         });
     }
 };
+
+// Controller: bookingController.js
+
+export const getOwnerHallsWithBookings = async (req, res) => {
+    try {
+        const ownerId = req.user.id;
+
+        const halls = await Hotel.find({ owner: ownerId });
+
+        const hallsWithBookings = await Promise.all(halls.map(async (hall) => {
+            const rooms = await Room.find({ hotel: hall._id });
+            const roomIds = rooms.map(room => room._id);
+
+            const bookings = await Booking.find({ room: { $in: roomIds } })
+                .populate('user', 'firstName email')
+                .populate('room', 'roomType');
+
+            const formattedBookings = bookings.map(booking => ({
+                userName: booking.user.firstName,
+                userEmail: booking.user.email,
+                roomType: booking.room.roomType,
+                checkInDate: booking.checkInDate,
+                checkOutDate: booking.checkOutDate,
+                totalPrice: booking.totalPrice,
+                guests: booking.guests,
+                status: booking.status,
+                paymentMethod: booking.paymentMethod,
+                isPaid: booking.isPaid
+            }));
+
+            return {
+                hallId: hall._id,
+                hallName: hall.name,
+                hallLocation: hall.location,
+                bookings: formattedBookings
+            };
+        }));
+
+        res.json({ success: true, halls: hallsWithBookings });
+    } catch (error) {
+        console.error('Error fetching owner halls with bookings:', error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+};
