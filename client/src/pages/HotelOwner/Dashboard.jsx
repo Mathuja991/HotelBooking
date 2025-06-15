@@ -14,52 +14,34 @@ const Dashboard = () => {
 const fetchDashboardData = async () => {
     try {
         const token = await getToken();
-
-        // Fetch owner bookings
         const { data } = await axios.get('/api/bookings/owner', {
             headers: { Authorization: `Bearer ${token}` }
         });
 
         console.log('Full API response:', data);
 
-        if (data.success && Array.isArray(data.bookings)) {
-            // Group bookings by room
-            const roomsMap = {};
+        if (data.success && Array.isArray(data.halls)) {
+            const totalBookings = data.halls.reduce((sum, hall) => sum + (hall.bookings ? hall.bookings.length : 0), 0);
+            const totalRevenue = data.halls.reduce((sum, hall) =>
+                sum + (hall.bookings ? hall.bookings.reduce((rSum, b) => rSum + (b.totalPrice || 0), 0) : 0), 0);
 
-            data.bookings.forEach(booking => {
-                const roomId = booking.roomId._id;
-
-                if (!roomsMap[roomId]) {
-                    roomsMap[roomId] = {
-                        _id: roomId,
-                        roomType: booking.roomId.roomType,
-                        capacity: booking.roomId.capacity,
-                        bookings: []
-                    };
-                }
-
-                roomsMap[roomId].bookings.push(booking);
-            });
-
-            const rooms = Object.values(roomsMap);
-
-            const totalBookings = data.bookings.length;
-            const totalRevenue = data.bookings.reduce((sum, b) => sum + (b.totalPrice || 0), 0);
-
+            // Rename halls to rooms for your existing UI
             setDashboardData({
-                rooms,
+                rooms: data.halls.map(hall => ({
+                    roomType: hall.hallName, // For display
+                    bookings: hall.bookings
+                })),
                 totalBookings,
-                totalRevenue
+                totalRevenue,
             });
         } else {
             toast.error(data.message || 'Dashboard data not available');
         }
-
     } catch (error) {
         console.error('Error fetching dashboard data:', error);
         toast.error(error.message);
     }
-};
+}
 
 
 

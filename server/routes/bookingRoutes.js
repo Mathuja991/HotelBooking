@@ -15,6 +15,6 @@ bookingRouter.post('/check-availability', checkAvailabilityAPI);
 bookingRouter.post('/book', protect, createBooking);
 bookingRouter.get('/user', protect, getUserBookings);
 bookingRouter.get('/hotel', protect, getHotelBookings);
-//bookingRouter.get('/owner', protect, getOwnerRoomsWithBookings);
+bookingRouter.get('/owner', protect, getOwnerRoomsWithBookings);
 
 export default bookingRouter
