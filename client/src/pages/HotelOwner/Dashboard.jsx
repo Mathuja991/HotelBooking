@@ -14,7 +14,7 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const { data } = await axios.get('/api/bookings/owner-halls', {
+      const { data } = await axios.get('/api/bookings/owner', {
         headers: { Authorization: `Bearer ${await getToken()}` }
       });
 
