@@ -1,25 +1,22 @@
-import Booking from "../models/Booking.js";
+import OnlineBooking from "../models/OnlineBooking.js";
 import Room from "../models/Room.js";
 import Hotel from "../models/Hotel.js";
 import sendEmail from '../configs/nodemailer.js';
+import ManualBooking from "../models/ManualBooking.js";
+ export const checkAvailability = async ({ room, checkInDate, checkOutDate }) => {
+  const overlapsOnline = await OnlineBooking.find({
+    room,
+    checkInDate: { $lte: checkOutDate },
+    checkOutDate: { $gte: checkInDate }
+  });
 
-const checkAvailability = async ({ checkInDate, startTime, endTime, room }) => {
-    try {
-        const bookings = await Booking.find({
-            room,
-            checkInDate,
-            $or: [
-                {
-                    startTime: { $lt: endTime },
-                    endTime: { $gt: startTime }
-                }
-            ]
-        });
-        return bookings.length === 0;
-    } catch (error) {
-        console.error("Error checking availability:", error.message);
-        throw error;
-    }
+  const overlapsManual = await ManualBooking.find({
+    room,
+    checkInDate: { $lte: checkOutDate },
+    checkOutDate: { $gte: checkInDate }
+  });
+
+  return overlapsOnline.length === 0 && overlapsManual.length === 0;
 };
 
 export const checkAvailabilityAPI = async (req, res) => {
@@ -67,7 +64,7 @@ export const createBooking = async (req, res) => {
       bookingData.user = req.user._id;
     }
 
-    const booking = await Booking.create(bookingData);
+    const booking = await OnlineBooking.create(bookingData);
     res.status(201).json({ success: true, booking });
   } catch (error) {
     console.error("Booking Error:", error);
@@ -99,31 +96,7 @@ export const getHotelBookings = async (req, res) => {
     }
 };
 
-export const testEmail = async (req, res) => {
-    try {
-        const result = await sendEmail({
-            to: req.user.email,
-            subject: 'Test Email from Booking System',
-            text: 'This is a test email to verify email functionality is working.'
-        });
 
-        if (result.success) {
-            res.json({ success: true, message: "Test email sent successfully" });
-        } else {
-            res.status(500).json({ 
-                success: false, 
-                message: "Failed to send test email", 
-                error: result.error 
-            });
-        }
-    } catch (error) {
-        res.status(500).json({ 
-            success: false, 
-            message: "Error in test email route", 
-            error: error.message 
-        });
-    }
-};
 
 export const getOwnerRoomsWithBookings = async (req, res) => {
     try {
@@ -136,7 +109,7 @@ export const getOwnerRoomsWithBookings = async (req, res) => {
 
         const hotelIds = hotels.map(hotel => hotel._id.toString());
         const rooms = await Room.find({ hotel: { $in: hotelIds } });
-        const bookings = await Booking.find({ hotel: { $in: hotelIds } })
+        const bookings = await OnlineBooking.find({ hotel: { $in: hotelIds } })
             .populate('user', 'firstName email')
             .populate('room', 'roomType');
 
@@ -173,7 +146,7 @@ export const getOwnerRoomsWithBookings = async (req, res) => {
 
 export const getUserBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find({ user: req.user._id })
+    const bookings = await OnlineBooking.find({ user: req.user._id })
       .populate("room hotel")
       .sort({ createdAt: -1 });
 
@@ -181,5 +154,27 @@ export const getUserBookings = async (req, res) => {
   } catch (error) {
     console.error("Error fetching user bookings:", error);
     res.status(500).json({ success: false, message: "Failed to fetch bookings" });
+  }
+};
+export const createManualBooking = async (req, res) => {
+  try {
+    const { guestName, phoneNumber, room, hotel, checkInDate, checkOutDate, guests, totalPrice } = req.body;
+
+    const booking = await ManualBooking.create({
+      guestName,
+      phoneNumber,
+      room,
+      hotel,
+      checkInDate,
+      checkOutDate,
+      guests,
+      totalPrice,
+      paymentMethod: "Pay At Hotel",
+      // ⚠️ don't include `user`
+    });
+
+    res.status(201).json({ success: true, booking });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };

@@ -1,7 +1,7 @@
-
 import mongoose from "mongoose";
-const bookingSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+
+const onlineBookingSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   guestName: { type: String, required: true },
   phoneNumber: { type: String, required: true },
   room: { type: mongoose.Schema.Types.ObjectId, ref: "Room", required: true },
@@ -18,10 +18,9 @@ const bookingSchema = new mongoose.Schema({
   paymentMethod: {
     type: String,
     default: "Pay At Hotel",
-    required: true,
   },
   isPaid: { type: Boolean, default: false },
 }, { timestamps: true });
 
-const Booking = mongoose.model("Booking", bookingSchema);
-export default Booking;
+const OnlineBooking = mongoose.model("OnlineBooking", onlineBookingSchema);
+export default OnlineBooking;
