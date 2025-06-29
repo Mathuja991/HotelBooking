@@ -1,0 +1,115 @@
+[33m9e6b910[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m HEAD@{0}: commit: l
+[33me525381[m HEAD@{1}: checkout: moving from demo to main
+[33m4078719[m[33m ([m[1;31morigin/demo[m[33m)[m HEAD@{2}: commit: sunday
+[33m64d535c[m HEAD@{3}: commit: sunday
+[33m335c06c[m HEAD@{4}: commit: p
+[33m89df72d[m HEAD@{5}: commit: p
+[33me18939c[m HEAD@{6}: commit: td
+[33md53ab00[m HEAD@{7}: commit: z
+[33m40cf15b[m HEAD@{8}: commit: y
+[33meec55ad[m HEAD@{9}: commit: td
+[33mb144ed5[m HEAD@{10}: commit: th
+[33m04467e3[m HEAD@{11}: filter-branch: rewrite
+[33m64d433d[m HEAD@{12}: commit: Stop tracking server/.env and add to .gitignore
+[33md417d26[m HEAD@{13}: commit (merge): iyo
+[33mbacc7ea[m HEAD@{14}: commit (merge): Resolved merge conflict in Dashboard.jsx by keeping main branch version
+[33m405fdd7[m HEAD@{15}: checkout: moving from main to demo
+[33m5c9198e[m HEAD@{16}: checkout: moving from demo to main
+[33m405fdd7[m HEAD@{17}: checkout: moving from demo to demo
+[33m405fdd7[m HEAD@{18}: commit: mk
+[33m1d510e7[m HEAD@{19}: checkout: moving from demo to demo
+[33m1d510e7[m HEAD@{20}: commit: kd
+[33mdd46266[m HEAD@{21}: checkout: moving from main to demo
+[33m5c9198e[m HEAD@{22}: commit (merge): Resolved merge conflicts
+[33mfb6bc65[m HEAD@{23}: checkout: moving from dd46266518f608622a9f3e4f9a1adb25a6c6a829 to main
+[33mdd46266[m HEAD@{24}: pull --rebase origin main (start): checkout dd46266518f608622a9f3e4f9a1adb25a6c6a829
+[33mfb6bc65[m HEAD@{25}: commit: Resolved merge conflicts
+[33m6b58708[m HEAD@{26}: commit: debug
+[33mb42a2c0[m HEAD@{27}: commit: l
+[33m5e2b4e2[m HEAD@{28}: commit: l
+[33m156dd10[m HEAD@{29}: commit: jk
+[33m986c651[m HEAD@{30}: commit: jk
+[33mce8f596[m HEAD@{31}: commit: jk
+[33mc430098[m HEAD@{32}: commit: jk
+[33me06c6c8[m HEAD@{33}: commit: jk
+[33m80d77dc[m HEAD@{34}: commit: jk
+[33mf610b04[m HEAD@{35}: commit: jk
+[33m186e3d8[m HEAD@{36}: commit: jk
+[33mff1f14c[m HEAD@{37}: commit: t
+[33m0edc713[m HEAD@{38}: commit: t
+[33mb9218a4[m HEAD@{39}: commit: b
+[33m7761178[m HEAD@{40}: commit: b
+[33mef15de1[m HEAD@{41}: commit: x
+[33m9421b51[m HEAD@{42}: commit: b
+[33mda1c165[m HEAD@{43}: commit: lal
+[33m30e8dbd[m HEAD@{44}: commit: lad
+[33m7955db2[m HEAD@{45}: commit: la
+[33m812f66a[m HEAD@{46}: commit: lad
+[33m53447a8[m HEAD@{47}: commit: g
+[33m5b48573[m HEAD@{48}: commit: g
+[33m19ffaf7[m HEAD@{49}: commit: g
+[33mbd62f43[m HEAD@{50}: commit: j
+[33me79fc02[m HEAD@{51}: commit: j
+[33mb0807b0[m HEAD@{52}: commit: j
+[33m58e130d[m HEAD@{53}: commit: j
+[33md32a552[m HEAD@{54}: commit: j
+[33m90ff6af[m HEAD@{55}: commit: j
+[33mecc37a9[m HEAD@{56}: commit: j
+[33m33021ab[m HEAD@{57}: commit: j
+[33mc59c33b[m HEAD@{58}: commit: ro
+[33maa923b3[m HEAD@{59}: commit: ro
+[33m8baa48b[m HEAD@{60}: commit: rose
+[33mc52efff[m HEAD@{61}: commit: yb
+[33mfc07e77[m HEAD@{62}: commit: yb
+[33m330c8cd[m HEAD@{63}: commit: yu
+[33ma399a43[m HEAD@{64}: commit: td
+[33m865d664[m HEAD@{65}: commit: ut
+[33mb5188d0[m HEAD@{66}: commit: ut
+[33m16ddd7b[m HEAD@{67}: commit: up
+[33mbc72435[m HEAD@{68}: commit: uu
+[33mccae3f5[m HEAD@{69}: commit: uo
+[33m482bae9[m HEAD@{70}: commit: u
+[33m61b6a7c[m HEAD@{71}: commit: uy
+[33m8f7b00f[m HEAD@{72}: commit: uyg
+[33m0a0d54b[m HEAD@{73}: commit: dd
+[33m59f240b[m HEAD@{74}: commit: lop
+[33mf3fb5e5[m HEAD@{75}: commit: lok
+[33m5567310[m HEAD@{76}: commit: llk
+[33ma5a6b0b[m HEAD@{77}: commit: lll
+[33m09f25a9[m HEAD@{78}: commit: ll
+[33m598c37a[m HEAD@{79}: commit: lj
+[33m1658d06[m HEAD@{80}: commit: oi
+[33m6028545[m HEAD@{81}: commit: op
+[33m42d25e5[m HEAD@{82}: commit: nk
+[33mb4b0155[m HEAD@{83}: commit: n
+[33m3c28fe8[m HEAD@{84}: commit: nm
+[33m5949d1a[m HEAD@{85}: commit: yu
+[33m318940d[m HEAD@{86}: commit: lag
+[33m48eabe3[m HEAD@{87}: commit: la
+[33ma35f5ac[m HEAD@{88}: commit: lastg
+[33m62e1fed[m HEAD@{89}: commit: lastu
+[33m066c7f3[m HEAD@{90}: commit: lastz
+[33m3c47a75[m HEAD@{91}: commit: lastd
+[33m459f738[m HEAD@{92}: pull origin main --rebase (finish): returning to refs/heads/main
+[33m459f738[m HEAD@{93}: pull origin main --rebase (pick): last
+[33m8bf1a44[m HEAD@{94}: pull origin main --rebase (pick): q2
+[33m3ab68a0[m HEAD@{95}: pull origin main --rebase (pick): l
+[33m9a7294d[m HEAD@{96}: pull origin main --rebase (start): checkout 9a7294db73c263f2e92a677f605ae2221288be9c
+[33ma60fcf2[m HEAD@{97}: reset: moving to HEAD
+[33ma60fcf2[m HEAD@{98}: pull: updating HEAD
+[33ma60fcf2[m HEAD@{99}: pull origin: updating HEAD
+[33ma60fcf2[m HEAD@{100}: commit: last
+[33m7633326[m HEAD@{101}: commit: q2
+[33m84c1bdc[m HEAD@{102}: commit: l
+[33mbaf1f29[m HEAD@{103}: commit: q1
+[33m8893d7e[m HEAD@{104}: commit: m
+[33mc168b79[m HEAD@{105}: commit: q
+[33m564af1a[m HEAD@{106}: commit: l
+[33m2f37a6b[m HEAD@{107}: commit: m
+[33mef4f056[m HEAD@{108}: commit: m
+[33m90227a2[m HEAD@{109}: commit: v
+[33mfece6aa[m HEAD@{110}: commit: o
+[33meb45711[m HEAD@{111}: commit: env
+[33m0a5ebfc[m HEAD@{112}: commit: 2ndcommit
+[33md2a9086[m HEAD@{113}: Branch: renamed refs/heads/main to refs/heads/main
+[33md2a9086[m HEAD@{115}: commit (initial): first commit
