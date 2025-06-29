@@ -15,7 +15,9 @@ const RoomDetails = () => {
     const[room,setRoom] =useState(null)
     const [mainImage,setMainImage] =useState(null)
     const [checkInDate, setCheckInDate] = useState(null);
-    const [checkOutDate, setCheckOutDate] = useState(null);
+    const [startTime, setStartTime] = useState("");
+    const [endTime, setEndTime] = useState("");
+
     const [guests, setGuests] = useState(1);
     const [isAvailable,setIsAvailable] = useState(false);
     const navigate=useNavigate()
@@ -48,35 +50,41 @@ const RoomDetails = () => {
         toast.error(error.message);
     }
 };
-
-   const onSubmitHandler = async (e) => {
-    e.preventDefault();
-    try {
-        if (!isAvailable) {
-            return checkAvailability();
-        } else {
-            const { data } = await axios.post('/api/bookings/book', {
-                room: id,
-                checkInDate,
-                checkOutDate,
-                guests,
-                paymentMethod: "Pay At Hotel"
-            }, {
-                headers: { Authorization: `Bearer ${await getToken()}` }
-            });
-
-            if (data.success) {
-                toast.success(data.message);
-                navigate('/my-bookings');
-                scrollTo(0, 0);
-            } else {
-                toast.error(data.message);
-            }
-        }
-    } catch (error) {
-        toast.error(error.message);
+const onSubmitHandler = async (e) => {
+  e.preventDefault();
+  try {
+    if (!checkInDate || !startTime || !endTime) {
+      toast.error("Please fill in all required fields");
+      return;
     }
+
+    const totalPrice = room.pricePerNight; // always 1-day price
+
+    const { data } = await axios.post('/api/bookings/book', {
+      hotel: room.hotel._id,
+      room: id,
+      checkInDate,
+      startTime,
+      endTime,
+      guests,
+      paymentMethod: "Pay At Hotel",
+      totalPrice,
+    }, {
+      headers: { Authorization: `Bearer ${await getToken()}` }
+    });
+
+    if (data.success) {
+      toast.success(data.message);
+      navigate('/my-bookings');
+      scrollTo(0, 0);
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    toast.error(error.response?.data?.message || error.message);
+  }
 };
+
 
 
     useEffect(()=>{
@@ -149,11 +157,27 @@ return room && (
      </div>
        
        <div className='w-px h-15 bg-gray-300/70 max-md:hidden'></div>
-      <div className='flex flex-col'>
-        <label htmlFor="checkOutDate" className='font-medium'>Check-Out </label>
-        <input  onChange={(e)=>setCheckOutDate(e.target.value)} min={checkInDate} disabled={!checkInDate} type="date" id='checkOutDate' placeholder='Check-Out' 
-        className='w-full rounded border border-gray-300 px-3 py- mt-1.5 outline-none' required/>
-     </div>
+    <div className='flex flex-col'>
+  <label htmlFor="startTime" className='font-medium'>Start Time</label>
+  <input 
+    onChange={(e) => setStartTime(e.target.value)} 
+    type="time" 
+    id='startTime' 
+    className='w-full rounded border border-gray-300 px-3 py-1.5 mt-1.5 outline-none' 
+    required 
+  />
+</div>
+
+<div className='flex flex-col'>
+  <label htmlFor="endTime" className='font-medium'>End Time</label>
+  <input 
+    onChange={(e) => setEndTime(e.target.value)} 
+    type="time" 
+    id='endTime' 
+    className='w-full rounded border border-gray-300 px-3 py-1.5 mt-1.5 outline-none' 
+    required 
+  />
+</div>
        
        <div className='w-px h-15 bg-gray-300/70 max-md:hidden'></div>
      <div className='flex flex-col'>

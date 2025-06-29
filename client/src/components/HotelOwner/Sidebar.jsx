@@ -7,7 +7,7 @@ const Sidebar = () => {
     const sidebarLinks =[
         {name:"Dashboard", path:"/owner" ,icon:assets.dashboardIcon},
         {name:"Add hall", path:"/owner/add-hall", icon:assets.addIcon},
-        {name:"List Room", path:"/owner/list-hall", icon:assets.listIcon},
+        {name:"List Booked Halls", path:"/owner/list-hall", icon:assets.listIcon},
     ]
   return (
     <div className='md:w-64 w-16 border-r h-full text-base border-gray-300 pt-4 flex flex-col transition-all duration-300'>
