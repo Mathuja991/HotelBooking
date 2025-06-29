@@ -34,43 +34,47 @@ export const checkAvailabilityAPI = async (req, res) => {
 
 export const createBooking = async (req, res) => {
   try {
-    let bookingData = { ...req.body };
+    const {
+      room,
+      hotel,
+      checkInDate,
+      checkOutDate,
+      guests,
+      totalPrice,
+      guestName,
+      phoneNumber,
+    } = req.body;
 
-    // If user is logged in, attach user id
-    if (req.user && req.user._id) {
-      bookingData.user = req.user._id;
-    } else {
-      // No logged in user - manual booking requires guestName and phoneNumber
-      if (!bookingData.guestName || !bookingData.phoneNumber) {
-        return res.status(400).json({ success: false, message: "Guest name and phone number are required for manual bookings." });
-      }
+    if (!guestName || !phoneNumber) {
+      return res.status(400).json({ success: false, message: "Guest name and phone number are required" });
     }
 
-    // Create booking
+    const bookingData = {
+      room,
+      hotel,
+      checkInDate,
+      checkOutDate,
+      guests,
+      totalPrice,
+      guestName,
+      phoneNumber,
+      paymentMethod: "Pay At Hotel",
+      isPaid: false,
+    };
+
+    // add user only if logged in
+    if (req.user && req.user._id) {
+      bookingData.user = req.user._id;
+    }
+
     const booking = await Booking.create(bookingData);
-
-    // Prepare email content (example, you can customize)
-
-
-  
-
     res.status(201).json({ success: true, booking });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: 'Booking failed' });
+    console.error("Booking Error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-export const getUserBookings = async (req, res) => {
-    try {
-        const bookings = await Booking.find({ user: req.user._id })
-            .populate("room hotel")
-            .sort({ createdAt: -1 });
-        res.json({ success: true, bookings });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "Failed to fetch bookings" });
-    }
-};
 
 export const getHotelBookings = async (req, res) => {
     try {
