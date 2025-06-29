@@ -14,6 +14,7 @@ import {Toaster} from 'react-hot-toast'
 import { useAppContext } from './context/AppContext'
 import HotelReg from './components/HotelReg'
 import ProtectedRoute from './components/ProtectedRoute';
+import ManualBooking from './pages/HotelOwner/ManualBooking';
 
 const App = () => {
   
@@ -37,6 +38,8 @@ const App = () => {
             <Route index element={<Dashboard />}></Route>
             <Route path="add-hall" element={<ProtectedRoute><AddRoom /></ProtectedRoute>} />
             <Route path="list-hall" element={<ListRoom />} />
+            <Route path="manual-booking" element={<ManualBooking />} />
+
           </Route>
         </Routes>
       </div>

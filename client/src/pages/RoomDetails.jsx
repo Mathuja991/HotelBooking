@@ -17,21 +17,19 @@ const RoomDetails = () => {
     const [checkInDate, setCheckInDate] = useState(null);
     const [startTime, setStartTime] = useState("");
     const [endTime, setEndTime] = useState("");
-
+    const [phoneNumber, setPhoneNumber] = useState('');
+     const [guestName, setGuestName] = useState('');
     const [guests, setGuests] = useState(1);
     const [isAvailable,setIsAvailable] = useState(false);
     const navigate=useNavigate()
     const checkAvailability = async () => {
     try {
-        if (checkInDate >= checkOutDate) {
-            toast.error('Check-In Date should be less than Check-Out Date');
-            return;
-        }
+        
 
         const { data } = await axios.post('/api/bookings/check-availability', {
             room: id,
             checkInDate,
-            checkOutDate,
+            
             guests // Include guests if your backend expects it
         });
 
@@ -51,39 +49,41 @@ const RoomDetails = () => {
     }
 };
 const onSubmitHandler = async (e) => {
-  e.preventDefault();
-  try {
-    if (!checkInDate || !startTime || !endTime) {
-      toast.error("Please fill in all required fields");
-      return;
+    e.preventDefault();
+
+    if (!isAvailable) {
+        // Check availability only (DO NOT BOOK)
+        return await checkAvailability();
     }
 
-    const totalPrice = room.pricePerNight; // always 1-day price
+    // Now proceed to book only if available
+    try {
+        const { data } = await axios.post('/api/bookings/book', {
+            room: id,
+            checkInDate,
+            startTime,
+            endTime,
+            guests,
+            paymentMethod: "Pay At Hotel",
+            phoneNumber,
+            name,
+            
+        }, {
+            headers: { Authorization: `Bearer ${await getToken()}` }
+        });
 
-    const { data } = await axios.post('/api/bookings/book', {
-      hotel: room.hotel._id,
-      room: id,
-      checkInDate,
-      startTime,
-      endTime,
-      guests,
-      paymentMethod: "Pay At Hotel",
-      totalPrice,
-    }, {
-      headers: { Authorization: `Bearer ${await getToken()}` }
-    });
-
-    if (data.success) {
-      toast.success(data.message);
-      navigate('/my-bookings');
-      scrollTo(0, 0);
-    } else {
-      toast.error(data.message);
+        if (data.success) {
+            toast.success(data.message || "Booking successful");
+            navigate('/my-bookings');
+            scrollTo(0, 0);
+        } else {
+            toast.error(data.message || "Booking failed");
+        }
+    } catch (error) {
+        toast.error(error.message);
     }
-  } catch (error) {
-    toast.error(error.response?.data?.message || error.message);
-  }
 };
+
 
 
 
@@ -149,6 +149,31 @@ return room && (
 
     <div className='flex flex-col flex-wrap md:flex-row items-start 
     md:items-center gap-4 md:gap-10 text-gray-500'>
+     <div className='flex flex-col'>
+  <label htmlFor="phoneNumber" className='font-medium'>Phone Number</label>
+  <input 
+    type="tel"
+    id='phoneNumber'
+    placeholder='Enter phone number'
+    onChange={(e) => setPhoneNumber(e.target.value)}
+    value={phoneNumber}
+    className='max-w-xs rounded border border-gray-300 px-3 py-1.5 mt-1.5 outline-none' 
+    required
+  />
+</div>
+
+      <div className='flex flex-col'>
+    <label htmlFor="guestName" className='font-medium'>Guest Name</label>
+    <input 
+      type="text"
+      id='guestName'
+      placeholder='Enter guest name'
+      onChange={(e) => setGuestName(e.target.value)}
+      value={guestName}
+      className='max-w-xs rounded border border-gray-300 px-3 py-1.5 mt-1.5 outline-none' 
+      required
+    />
+  </div>
 
      <div className='flex flex-col'>
         <label htmlFor="checkInDate" className='font-medium'>Check-In </label>

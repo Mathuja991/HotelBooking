@@ -67,17 +67,18 @@ const MyBookings = () => {
                      </div>
                      <div className='flex flex-row md:items-centermd:gap-12 mt-3 gap-8'>
                       <div>
-                       <p> Check-In:</p>
+                       <p> Booked Date:</p>
                        <p className='text-gray-500 text-sm'> 
                         {new Date(booking.checkInDate).toDateString()}
                        </p>
                       </div>
-                      <div>
-                       <p> Check-Out:</p>
-                       <p className='text-gray-500 text-sm'> 
-                        {new Date(booking.checkOutDate).toDateString()}
-                       </p>
-                      </div>
+                     
+                    <div>
+                     <p>Time:</p>
+                    <p className='text-gray-500 text-sm'>
+                   {booking.startTime} - {booking.endTime}
+                      </p>
+                    </div>
                      </div>
 
                      <div className='flex flex-col items-start justify-center pt-3'>
