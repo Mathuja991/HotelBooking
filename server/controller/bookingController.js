@@ -3,12 +3,17 @@ import Room from "../models/Room.js";
 import Hotel from "../models/Hotel.js";
 import sendEmail from '../configs/nodemailer.js';
 
-const checkAvailability = async ({ checkInDate, checkOutDate, room }) => {
+const checkAvailability = async ({ checkInDate, startTime, endTime, room }) => {
     try {
         const bookings = await Booking.find({
             room,
-            checkInDate: { $lte: checkOutDate },
-            checkOutDate: { $gte: checkInDate },
+            checkInDate,
+            $or: [
+                {
+                    startTime: { $lt: endTime },
+                    endTime: { $gt: startTime }
+                }
+            ]
         });
         return bookings.length === 0;
     } catch (error) {
@@ -19,32 +24,61 @@ const checkAvailability = async ({ checkInDate, checkOutDate, room }) => {
 
 export const checkAvailabilityAPI = async (req, res) => {
     try {
-        const { room, checkInDate, checkOutDate } = req.body;
-        const isAvailable = await checkAvailability({ checkInDate, checkOutDate, room });
+        const { room, checkInDate, startTime, endTime } = req.body;
+        const isAvailable = await checkAvailability({ checkInDate, startTime, endTime, room });
         res.json({ success: true, isAvailable });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
 };
 
-
-
-
 export const createBooking = async (req, res) => {
     try {
-        // Assume you save booking here and get booking details
-        const booking = await Booking.create({ ...req.body, user: req.user._id });
+        const {
+            room: roomId,
+            checkInDate,
+            startTime,
+            endTime,
+            guests,
+            paymentMethod,
+        } = req.body;
 
-        // Prepare email content
+        const room = await Room.findById(roomId);
+        if (!room) {
+            return res.status(404).json({ success: false, message: "Room not found" });
+        }
+
+        const hotel = await Hotel.findById(room.hotel);
+        if (!hotel) {
+            return res.status(404).json({ success: false, message: "Hotel not found" });
+        }
+
+        const totalPrice = room.pricePerNight; // Flat rate for 1-day booking
+
+        const booking = await Booking.create({
+            user: req.user._id,
+            room: roomId,
+            hotel: hotel._id,
+            checkInDate,
+            startTime,
+            endTime,
+            totalPrice,
+            guests,
+            paymentMethod
+        });
+
         const emailContent = `
 Dear ${req.user.username},
 
 Your booking has been successfully confirmed.
 
 Booking Details:
-- Room Type: ${booking.roomType}
-- Capacity: ${booking.capacity} people
-- Price Per Night: $${booking.pricePerNight}
+- Room Type: ${room.roomType}
+- Hotel: ${hotel.name}
+- Date: ${new Date(checkInDate).toDateString()}
+- Time: ${startTime} to ${endTime}
+- Guests: ${guests}
+- Total Price: $${totalPrice}
 
 Thank you for choosing Kanapathi Hall!
 
@@ -52,19 +86,18 @@ Regards,
 Kanapathi Hall Team
 `;
 
-        // Send email
         try {
             await sendEmail({
                 to: req.user.email,
                 subject: 'Kanapathi Hall Booking Confirmation',
                 text: emailContent
             });
-            console.log("Booking email sent successfully");
         } catch (emailError) {
             console.error("Failed to send booking email:", emailError);
         }
 
         res.status(201).json({ success: true, booking });
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: 'Booking failed' });
@@ -131,33 +164,21 @@ export const testEmail = async (req, res) => {
     }
 };
 
-// Controller: bookingController.js
-
-
-
 export const getOwnerRoomsWithBookings = async (req, res) => {
     try {
-        const ownerId = req.user.id; // The logged-in hotel owner ID
+        const ownerId = req.user.id;
 
-        // ✅ 1. Find all hotels owned by this owner
         const hotels = await Hotel.find({ owner: ownerId });
         if (hotels.length === 0) {
             return res.json({ success: true, rooms: [] });
         }
 
-        const hotelIds = hotels.map(hotel => hotel._id.toString()); // ✅ use strings
-
-        // ✅ 2. Find all rooms that belong to these hotels
+        const hotelIds = hotels.map(hotel => hotel._id.toString());
         const rooms = await Room.find({ hotel: { $in: hotelIds } });
-
-        const roomIds = rooms.map(room => room._id.toString());
-
-        // ✅ 3. Find all bookings for these hotels
         const bookings = await Booking.find({ hotel: { $in: hotelIds } })
             .populate('user', 'firstName email')
             .populate('room', 'roomType');
 
-        // ✅ 4. Map bookings to each room
         const roomsWithBookings = rooms.map(room => {
             const roomBookings = bookings
                 .filter(booking => booking.room._id.toString() === room._id.toString())
@@ -165,7 +186,8 @@ export const getOwnerRoomsWithBookings = async (req, res) => {
                     userName: booking.user.firstName,
                     userEmail: booking.user.email,
                     checkInDate: booking.checkInDate,
-                    checkOutDate: booking.checkOutDate,
+                    startTime: booking.startTime,
+                    endTime: booking.endTime,
                     totalPrice: booking.totalPrice,
                     guests: booking.guests,
                     status: booking.status,
