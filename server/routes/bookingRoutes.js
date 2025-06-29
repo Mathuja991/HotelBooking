@@ -5,7 +5,8 @@ checkAvailabilityAPI,
 createBooking,
 getHotelBookings,
 getUserBookings,
- getOwnerRoomsWithBookings
+ getOwnerRoomsWithBookings,
+
 } from '../controller/bookingController.js';
 import { protect } from '../middleware/authMiddleware.js';
 

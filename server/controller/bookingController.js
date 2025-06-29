@@ -33,75 +33,32 @@ export const checkAvailabilityAPI = async (req, res) => {
 };
 
 export const createBooking = async (req, res) => {
-    try {
-        const {
-            room: roomId,
-            checkInDate,
-            startTime,
-            endTime,
-            guests,
-            paymentMethod,
-        } = req.body;
+  try {
+    let bookingData = { ...req.body };
 
-        const room = await Room.findById(roomId);
-        if (!room) {
-            return res.status(404).json({ success: false, message: "Room not found" });
-        }
-
-        const hotel = await Hotel.findById(room.hotel);
-        if (!hotel) {
-            return res.status(404).json({ success: false, message: "Hotel not found" });
-        }
-
-        const totalPrice = room.pricePerNight; // Flat rate for 1-day booking
-
-        const booking = await Booking.create({
-            user: req.user._id,
-            room: roomId,
-            hotel: hotel._id,
-            checkInDate,
-            startTime,
-            endTime,
-            totalPrice,
-            guests,
-            paymentMethod
-        });
-
-        const emailContent = `
-Dear ${req.user.username},
-
-Your booking has been successfully confirmed.
-
-Booking Details:
-- Room Type: ${room.roomType}
-- Hotel: ${hotel.name}
-- Date: ${new Date(checkInDate).toDateString()}
-- Time: ${startTime} to ${endTime}
-- Guests: ${guests}
-- Total Price: $${totalPrice}
-
-Thank you for choosing Kanapathi Hall!
-
-Regards,
-Kanapathi Hall Team
-`;
-
-        try {
-            await sendEmail({
-                to: req.user.email,
-                subject: 'Kanapathi Hall Booking Confirmation',
-                text: emailContent
-            });
-        } catch (emailError) {
-            console.error("Failed to send booking email:", emailError);
-        }
-
-        res.status(201).json({ success: true, booking });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ success: false, message: 'Booking failed' });
+    // If user is logged in, attach user id
+    if (req.user && req.user._id) {
+      bookingData.user = req.user._id;
+    } else {
+      // No logged in user - manual booking requires guestName and phoneNumber
+      if (!bookingData.guestName || !bookingData.phoneNumber) {
+        return res.status(400).json({ success: false, message: "Guest name and phone number are required for manual bookings." });
+      }
     }
+
+    // Create booking
+    const booking = await Booking.create(bookingData);
+
+    // Prepare email content (example, you can customize)
+
+
+  
+
+    res.status(201).json({ success: true, booking });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Booking failed' });
+  }
 };
 
 export const getUserBookings = async (req, res) => {
@@ -208,3 +165,32 @@ export const getOwnerRoomsWithBookings = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 };
+
+export const createManualBooking = async (req, res) => {
+  try {
+    const { guestName, phoneNumber, room, checkInDate, startTime, endTime, guests, totalPrice } = req.body;
+
+    const roomData = await Room.findById(room);
+    const hotel = roomData.hotel;
+
+    const booking = await Booking.create({
+      guestName,
+      phoneNumber,
+      room,
+      hotel,
+      checkInDate,
+      startTime,
+      endTime,
+      guests,
+      totalPrice,
+      paymentMethod: "Pay At Hotel",
+      isPaid: false
+    });
+
+    res.status(201).json({ success: true, booking });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Manual booking failed' });
+  }
+};
+
