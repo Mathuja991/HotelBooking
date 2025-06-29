@@ -170,31 +170,16 @@ export const getOwnerRoomsWithBookings = async (req, res) => {
     }
 };
 
-export const createManualBooking = async (req, res) => {
+
+export const getUserBookings = async (req, res) => {
   try {
-    const { guestName, phoneNumber, room, checkInDate, startTime, endTime, guests, totalPrice } = req.body;
+    const bookings = await Booking.find({ user: req.user._id })
+      .populate("room hotel")
+      .sort({ createdAt: -1 });
 
-    const roomData = await Room.findById(room);
-    const hotel = roomData.hotel;
-
-    const booking = await Booking.create({
-      guestName,
-      phoneNumber,
-      room,
-      hotel,
-      checkInDate,
-      startTime,
-      endTime,
-      guests,
-      totalPrice,
-      paymentMethod: "Pay At Hotel",
-      isPaid: false
-    });
-
-    res.status(201).json({ success: true, booking });
+    res.json({ success: true, bookings });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: 'Manual booking failed' });
+    console.error("Error fetching user bookings:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch bookings" });
   }
 };
-
