@@ -4,8 +4,9 @@ import {
 checkAvailabilityAPI,
 createBooking,
 getHotelBookings,
-getUserBookings,
- getOwnerRoomsWithBookings,
+getUserBookings, 
+getOwnerRoomsWithBookings,
+getAllBookings,
 
 } from '../controller/bookingController.js';
 import { protect } from '../middleware/authMiddleware.js';
@@ -17,5 +18,6 @@ bookingRouter.post("/book", requireAuth(), createBooking);
 bookingRouter.get('/user', protect, getUserBookings);
 bookingRouter.get('/hotel', protect, getHotelBookings);
 bookingRouter.get('/owner', protect, getOwnerRoomsWithBookings);
+bookingRouter.get('/all', protect, getAllBookings);
 
 export default bookingRouter

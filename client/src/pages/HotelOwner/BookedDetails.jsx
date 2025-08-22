@@ -11,7 +11,7 @@ const BookedDetails = () => {
   // Fetch all bookings (admin only)
   const fetchAllBookings = async () => {
     try {
-      const { data } = await axios.get('/api/bookings', {
+      const { data } = await axios.get('/api/bookings/user', {
         headers: {
           Authorization: `Bearer ${await getToken()}`
         }

@@ -210,3 +210,36 @@ export const getUserBookings = async (req, res) => {
 };
 
 
+
+
+// Fetch all bookings for admin
+export const getAllBookings = async (req, res) => {
+  try {
+    const bookings = await Booking.find()
+      .populate("room") // populate room details
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Attach hotel details manually
+    const bookingsWithHotel = await Promise.all(
+      bookings.map(async (booking) => {
+        let hotelDetails = null;
+        if (booking.room?.hotel) {
+          hotelDetails = await Hotel.findById(booking.room.hotel).lean();
+        }
+        return {
+          ...booking,
+          room: {
+            ...booking.room,
+            hotel: hotelDetails || booking.room.hotel,
+          },
+        };
+      })
+    );
+
+    res.json({ success: true, bookings: bookingsWithHotel });
+  } catch (error) {
+    console.error("Get All Bookings Error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch bookings" });
+  }
+};
