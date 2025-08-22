@@ -93,6 +93,7 @@ export const createBooking = async (req, res) => {
       totalPrice,
       guests,
       guestName,
+      phoneNumber,
       status: "pending",
       paymentMethod: paymentMethod || "Pay At Hotel",
       isPaid: false,
