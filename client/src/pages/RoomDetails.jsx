@@ -97,23 +97,22 @@ const RoomDetails = () => {
       }
 
       const { data } = await axios.post(
-  "/api/bookings/book",
-  {
-    room: id,
-    checkInDate,
-    startTime,
-    endTime,
-    guests,
-    guestName,    // send guestName
-    phoneNumber,  // send phoneNumber
-    paymentMethod: "Pay At Hotel",
-  },
-  {
-    headers: { Authorization: `Bearer ${token}` },
-    withCredentials: true,
-  }
-);
-
+        "/api/bookings/book",
+        {
+          room: id,
+          checkInDate,
+          startTime,
+          endTime,
+          guests,
+          guestName,
+          phoneNumber,
+          paymentMethod: "Pay At Hotel",
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
 
       if (data?.success) {
         toast.success("Booking successful");
