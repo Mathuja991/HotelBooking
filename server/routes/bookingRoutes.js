@@ -3,17 +3,19 @@ import { requireAuth } from "@clerk/express";
 import {
 checkAvailabilityAPI,
 createBooking,
+getHotelBookings,
 
-
-
+ getOwnerRoomsWithBookings,
 
 } from '../controller/bookingController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
-const router = express.Router();
+const bookingRouter = express.Router();
 
-router.post("/check-availability", requireAuth, checkAvailabilityAPI);
-router.post("/book", requireAuth, createBooking);
-//router.get("/my-bookings", requireAuth, getUserBookings);
+bookingRouter.post('/check-availability', checkAvailabilityAPI);
+bookingRouter.post("/book", requireAuth(), createBooking);
 
-export default router
+bookingRouter.get('/hotel', protect, getHotelBookings);
+bookingRouter.get('/owner', protect, getOwnerRoomsWithBookings);
+
+export default bookingRouter
