@@ -15,6 +15,7 @@ import { useAppContext } from './context/AppContext'
 import HotelReg from './components/HotelReg'
 import ProtectedRoute from './components/ProtectedRoute';
 import ManualBooking from './pages/HotelOwner/ManualBooking';
+import BookedDetails from './pages/HotelOwner/BookedDetails';
 
 const App = () => {
   
@@ -39,6 +40,7 @@ const App = () => {
             <Route path="add-hall" element={<ProtectedRoute><AddRoom /></ProtectedRoute>} />
             <Route path="list-hall" element={<ListRoom />} />
             <Route path="manual-booking" element={<ManualBooking />} />
+            <Route path="details" element={<BookedDetails />} />
 
           </Route>
         </Routes>
