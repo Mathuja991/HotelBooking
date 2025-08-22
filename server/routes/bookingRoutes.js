@@ -4,7 +4,7 @@ import {
 checkAvailabilityAPI,
 createBooking,
 getHotelBookings,
-
+getUserBookings,
  getOwnerRoomsWithBookings,
 
 } from '../controller/bookingController.js';
@@ -14,7 +14,7 @@ const bookingRouter = express.Router();
 
 bookingRouter.post('/check-availability', checkAvailabilityAPI);
 bookingRouter.post("/book", requireAuth(), createBooking);
-
+bookingRouter.get('/user', protect, getUserBookings);
 bookingRouter.get('/hotel', protect, getHotelBookings);
 bookingRouter.get('/owner', protect, getOwnerRoomsWithBookings);
 
