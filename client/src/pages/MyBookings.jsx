@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Title from '../components/Title'
-
+import toast from "react-hot-toast";
 import { assets } from '../assets/assets'
 import { useAppContext } from '../context/AppContext'
 

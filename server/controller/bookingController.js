@@ -173,15 +173,40 @@ export const getOwnerRoomsWithBookings = async (req, res) => {
 };
 
 // --- API: Get User Bookings ---
+
+
 export const getUserBookings = async (req, res) => {
   try {
-    const bookings = await Booking.find({ user: req.user.id })
-      .populate("room hotel")
-      .sort({ createdAt: -1 });
+    console.log("User ID from req:", req.user.id);
 
-    res.json({ success: true, bookings });
+    // Find user bookings and populate room
+    const bookings = await Booking.find({ user: req.user.id })
+      .populate("room") // this works since Booking references Room
+      .sort({ createdAt: -1 })
+      .lean(); // lean() to allow manual modifications
+
+    // Attach hotel details manually since `room.hotel` is just a string
+    const bookingsWithHotel = await Promise.all(
+      bookings.map(async (booking) => {
+        if (booking.room?.hotel) {
+          const hotel = await Hotel.findById(booking.room.hotel).lean();
+          return {
+            ...booking,
+            room: {
+              ...booking.room,
+              hotel: hotel || booking.room.hotel, // fallback to string if not found
+            },
+          };
+        }
+        return booking;
+      })
+    );
+
+    res.json({ success: true, bookings: bookingsWithHotel });
   } catch (error) {
     console.error("Get User Bookings Error:", error);
     res.status(500).json({ success: false, message: "Failed to fetch bookings" });
   }
 };
+
+
