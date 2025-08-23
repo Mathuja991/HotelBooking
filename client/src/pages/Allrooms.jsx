@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { facilityIcons, assets } from '../assets/assets';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import StarRating from '../components/StarRating';
 import { useAppContext } from '../context/AppContext';
 
@@ -33,7 +33,7 @@ const RadioButton = ({ label, selected = false, onChange = () => {} }) => {
 
 const Allrooms = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { rooms, navigate, currency } = useAppContext();
+  const { rooms, currency } = useAppContext();
   const [openFilters, setOpenFilters] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     capacity: [],
@@ -41,7 +41,7 @@ const Allrooms = () => {
     features: [],
   });
   const [selectedSort, setSelectedSort] = useState('');
-  
+  const navigate = useNavigate(); //
   const capacityOptions = [
     '0-50 guests',
     '50-100 guests',

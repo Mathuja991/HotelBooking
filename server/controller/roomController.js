@@ -17,10 +17,9 @@ cloudinary.config({
 export const createRoom = async (req, res) => {
   try {
     const { userId } = getAuth(req);
-
     if (!userId) return res.json({ success: false, message: "User not authenticated" });
 
-    const { roomType, pricePerNight,capacity, amenities } = req.body;
+    const { roomType, pricePerNight, capacity, amenities, lunchMenus, extraCurry, paidCurry } = req.body;
 
     const hotel = await Hotel.findOne({ owner: userId });
     if (!hotel) return res.json({ success: false, message: "No Hotel Found" });
@@ -39,8 +38,10 @@ export const createRoom = async (req, res) => {
       capacity,
       amenities: JSON.parse(amenities),
       images,
+      lunchMenus: lunchMenus ? JSON.parse(lunchMenus) : [],
+      extraCurry: extraCurry || "",
+      paidCurry: paidCurry || "",
     });
-
 
     res.json({ success: true, message: "Room created successfully" });
   } catch (error) {
@@ -48,23 +49,22 @@ export const createRoom = async (req, res) => {
   }
 };
 
+export const getRooms = async (req, res) => {
+  try {
+    const rooms = await Room.find({ isAvailable: true }).populate({
+      path: 'hotel',
+      populate: { path: 'owner', select: 'image' }
+    }).sort({ createdAt: -1 });
+
+    res.json({ success: true, rooms });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
 
 
-export const getRooms = async (req,res)=>{
-    try {
-        const rooms = await Room.find({isAvailable: true}).populate({
-        path: 'hotel',
-        populate: {
-        path: 'owner',
-        select: 'image'
-        }
-        }).sort ({createdAt: -1 })
-        res. json({success: true, rooms});
-        } catch (error) {
-        res.json({success: false, message: error.message});
-        }
 
-    }
+
 
 
 export const getOwnerrooms = async (req, res) => {

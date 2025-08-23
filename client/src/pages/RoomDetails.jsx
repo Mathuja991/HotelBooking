@@ -286,18 +286,56 @@ const RoomDetails = () => {
         </button>
       </form>
 
-      {/* Extra Info */}
-      <div className="mt-25 space-y-4">
-        {roomCommonData.map((spec, i) => (
-          <div key={i} className="flex flex-start gap-2">
-            <img src={spec.icon} alt="" className="w-6.5" />
-            <div>
-              <p className="text-base">{spec.title}</p>
-              <p className="text-gray-500">{spec.description}</p>
+    {/* Extra Info */}
+<div className="mt-25 space-y-4">
+  
+
+  {/* Included in Hall Fees */}
+  <div className="mt-10">
+    <h2 className="text-2xl font-semibold mb-4">What’s Included in Hall Fees</h2>
+    <ul className="list-disc list-inside text-gray-700 space-y-2">
+      <li>Entire hall with A/C usage for 5 hours</li>
+      <li>Wedding hall stage</li>
+      <li>Mass arrangements</li>
+    </ul>
+  </div>
+
+  {/* Optional Paid Services */}
+  <div className="mt-8">
+    <h2 className="text-2xl font-semibold mb-4">Optional Add-ons (Extra Charges Apply)</h2>
+    <p className="text-gray-500 mb-3">
+      You may bring your own, or the hotel owner can arrange these for an additional cost:
+    </p>
+    <ul className="list-disc list-inside text-gray-700 space-y-2">
+      <li>Auspicious arrangements</li>
+      <li>Musical instruments</li>
+      <li>Special stage decoration</li>
+      <li>Entrance decoration (Banana trees)</li>
+      <li>Iyer (Priest) services</li>
+      <li>Chair covers</li>
+    </ul>
+  </div>
+
+  {/* Lunch Menu */}
+    <div className="mt-8">
+          <h2 className="text-2xl font-semibold mb-4">Lunch Menu</h2>
+          {room.lunchMenus?.length > 0 ? (
+            <div className="grid md:grid-cols-2 gap-4 text-gray-700">
+              {room.lunchMenus.map((menu, idx) => (
+                <ul key={idx} className="list-disc list-inside space-y-1">
+                  <li className="font-medium">{menu.menu}</li>
+                  <li>{menu.details}</li>
+                </ul>
+              ))}
             </div>
-          </div>
-        ))}
-      </div>
+          ) : (
+            <p className="text-gray-500">Menu details not available.</p>
+          )}
+          {room.extraCurry && <p className="mt-2 text-gray-700">Extra Curry: {room.extraCurry}</p>}
+          {room.paidCurry && <p className="mt-1 text-gray-700">Paid Curry: {room.paidCurry}</p>}
+        </div>
+</div>
+
 
       <div className="max-w-7xl border-y border-gray-300 my-15 py-10 text-gray-500">
         <p>
@@ -307,6 +345,8 @@ const RoomDetails = () => {
           receive an accurate quote. Let us help you create unforgettable memories!
         </p>
       </div>
+
+      
     </div>
   );
 };
