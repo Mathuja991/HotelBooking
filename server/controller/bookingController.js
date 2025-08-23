@@ -43,6 +43,7 @@ export const checkAvailabilityAPI = async (req, res) => {
 };
 
 // --- API: Create Booking ---
+// --- API: Create Booking ---
 export const createBooking = async (req, res) => {
   try {
     const {
@@ -54,14 +55,14 @@ export const createBooking = async (req, res) => {
       guestName,
       phoneNumber,
       paymentMethod,
-      lunchMenus = [],        // NEW: selected lunch menus from frontend
-      optionalServices = [],  // NEW: selected extra services from frontend
+      lunchMenus = [],
+      optionalServices = [],
     } = req.body;
 
     const userId = req?.auth?.userId;
     if (!userId) return res.status(401).json({ success: false, message: "Unauthorized" });
 
-    // basic validation
+    // Basic validation
     if (!room || !checkInDate || !startTime || !endTime || !guests || !guestName || !phoneNumber) {
       return res.status(400).json({ success: false, message: "All fields are required" });
     }
@@ -79,29 +80,45 @@ export const createBooking = async (req, res) => {
     const isAvailable = await checkAvailability({ room, checkInDate: checkDate, startTime, endTime });
     if (!isAvailable) return res.status(400).json({ success: false, message: "Room not available for this time" });
 
-    // Calculate total price including optional services (example)
-    const pricePerDay = roomDoc.pricePerNight || 0;
-    const lunchPrice = lunchMenus.length * 10; // example: $10 per selected menu
-    const servicesPrice = optionalServices.length * 5; // example: $5 per service
-    const totalPrice = pricePerDay + lunchPrice + servicesPrice;
+    // --- Dynamic Total Price Calculation ---
+    let totalPrice = roomDoc.pricePerNight || 0;
 
+    // Add lunch menu prices
+    if (lunchMenus.length) {
+      lunchMenus.forEach(menuName => {
+        const menuItem = roomDoc.lunchMenus.find(m => m.menu === menuName);
+        if (menuItem) totalPrice += menuItem.price;
+      });
+    }
+
+    // Add optional service prices
+    if (optionalServices.length) {
+      optionalServices.forEach(serviceName => {
+        const addOn = roomDoc.optionalAddOns.find(a => a.name === serviceName);
+        if (addOn) totalPrice += addOn.price;
+      });
+    }
+
+    // --- Create Booking ---
     const booking = await Booking.create({
       user: userId,
       room,
-      hotel: hotelId,
       checkInDate: checkDate,
       startTime,
       endTime,
-      totalPrice,
+      totalPrice,      // store dynamic totalPrice
       guests,
       guestName,
       phoneNumber,
       status: "pending",
       paymentMethod: paymentMethod || "Pay At Hotel",
       isPaid: false,
-      lunchMenus,         // store selected lunch menus
-      optionalServices,   // store selected extra services
+      lunchMenus,
+      optionalServices,
     });
+
+    // Optional: send confirmation email
+    // await sendEmail({ to: userEmail, subject: "Booking Confirmed", text: "Your booking is confirmed!" });
 
     return res.status(201).json({ success: true, booking });
   } catch (error) {
@@ -109,7 +126,6 @@ export const createBooking = async (req, res) => {
     return res.status(500).json({ success: false, message: "Booking failed" });
   }
 };
-
 // --- API: Get Hotel Bookings ---
 export const getHotelBookings = async (req, res) => {
   try {

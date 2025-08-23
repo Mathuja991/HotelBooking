@@ -35,6 +35,8 @@ const bookingSchema = new mongoose.Schema(
      // NEW FIELDS
     lunchMenus: [{ type: String }],          // array of selected lunch menus
     optionalServices: [{ type: String }],    // array of selected extra services
+    totalPrice: { type: Number, default: 0 },
+
   },
   { timestamps: true }
 );

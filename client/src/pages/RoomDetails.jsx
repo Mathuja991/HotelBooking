@@ -164,6 +164,99 @@ const RoomDetails = () => {
             ))}
         </div>
       </div>
+     
+     
+
+ <div>       
+    {/* Extra Info */}
+<div className="mt-25 space-y-4">
+  
+
+  {/* Included in Hall Fees */}
+  <div className="mt-10">
+    <h2 className="text-2xl font-semibold mb-4">What’s Included in Hall Fees</h2>
+    <ul className="list-disc list-inside text-gray-700 space-y-2">
+      <li>Entire hall with A/C usage for 5 hours</li>
+      <li>Wedding hall stage</li>
+      <li>Mass arrangements</li>
+    </ul>
+  </div>
+
+  {/* Optional Paid Services */}
+  <div className="mt-8">
+    <h2 className="text-2xl font-semibold mb-4">Optional Add-ons (Extra Charges Apply)</h2>
+    <p className="text-gray-500 mb-3">
+      You may bring your own, or the hotel owner can arrange these for an additional cost:
+    </p>
+    <ul className="list-disc list-inside text-gray-700 space-y-2">
+      <li>Auspicious arrangements</li>
+      <li>Musical instruments</li>
+      <li>Special stage decoration</li>
+      <li>Entrance decoration (Banana trees)</li>
+      <li>Iyer (Priest) services</li>
+      <li>Chair covers</li>
+    </ul>
+  </div>
+
+<div className="mt-8">
+  <h2 className="text-2xl font-semibold mb-6">Lunch Menu</h2>
+
+  {room.lunchMenus && room.lunchMenus.length > 0 ? (
+    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {room.lunchMenus.map((menu, idx) => (
+        <div
+          key={idx}
+          className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow transform hover:scale-105 p-5 flex flex-col justify-between"
+          style={{
+            borderTop: `4px solid hsl(${(idx * 45) % 360}, 70%, 50%)`,
+          }}
+        >
+          {/* Menu Title */}
+          <p className="font-bold text-xl mb-2 text-gray-800">{`Menu ${idx + 1}`}</p>
+          
+          {/* Details */}
+          <p className="text-gray-700 text-sm mb-3">{menu.details || "No details provided"}</p>
+          
+          {/* Price */}
+          <p className="text-gray-900 font-semibold text-base">Price: Rs.{menu.price || "N/A"}</p>
+
+          {/* Optional Badge (Example) */}
+          {menu.extra && (
+            <span className="mt-2 inline-block bg-yellow-200 text-yellow-800 text-xs font-medium px-2 py-1 rounded-full">
+              Extra
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  ) : (
+    <p className="text-gray-500">No lunch menu information available.</p>
+  )}
+</div>
+
+<div className="mt-10">
+    <h2 className="text-2xl font-semibold mb-4">Refreshments & Rules</h2>
+    <ul className="list-disc list-inside text-gray-700 space-y-2">
+      <li>Refreshments such as <strong>Poonthi Laddu </strong>, <strong>Soda / Juice / Nescafe / Ice Cream</strong>, and <strong>Water bottles</strong> will be provided.</li>
+      <li>Refreshments <strong>cannot be brought from outside</strong>.</li>
+      <li>If you wish, you may bring <strong>lunch from outside</strong>, but a <strong>service charge</strong> will apply.</li>
+      <li><strong>Non-veg food is also allowed</strong> in the hall.</li>
+      <li><strong>Refreshments in glass or one-day cups are NOT allowed</strong>. Only <strong>sealed bottles</strong> are permitted.</li>
+    </ul>
+  </div> 
+
+</div>
+
+
+     
+
+      
+    </div>
+ 
+
+
+
+     
 
       {/* Booking Form */}
       <form
@@ -254,7 +347,7 @@ const RoomDetails = () => {
           </div>
 
           {/* Optional Add-Ons */}
-          {room.optionalAddOns?.length > 0 && (
+          
             <div className="flex flex-col mt-4">
               <label className="font-medium mb-1">Select Optional Add-ons</label>
               <div className="flex flex-wrap gap-2">
@@ -276,14 +369,14 @@ const RoomDetails = () => {
                 ))}
               </div>
             </div>
-          )}
+      
 
-     {room.lunchMenus?.length > 0 && (
+ {room.lunchMenus?.length > 0 && (
   <div className="flex flex-col mt-4">
     <label className="font-medium mb-1">Select Lunch Menu</label>
     <div className="flex flex-wrap gap-2">
       {room.lunchMenus.map((menuItem, idx) => {
-        const labelText = `${menuItem.menu} - ${menuItem.details} ($${menuItem.price})`;
+        const labelText = menuItem.menu || `Menu ${idx + 1}`; // Only show "Menu1, Menu2..."
         return (
           <label
             key={idx}
@@ -310,6 +403,7 @@ const RoomDetails = () => {
   </div>
 )}
 
+
         </div>
 
         <button
@@ -320,6 +414,15 @@ const RoomDetails = () => {
           {isAvailable ? (submitting ? "Booking..." : "Book Now") : "Check Availability"}
         </button>
       </form>
+
+       <div className="max-w-7xl border-y border-gray-300 my-15 py-10 text-gray-500">
+        <p>
+          Welcome to our spacious and elegant hall — the perfect venue for your special events. Whether you're planning a wedding,
+          reception, corporate event, or private gathering, our hall offers a refined atmosphere that blends comfort and
+          sophistication. Pricing is based on standard guest capacity; for group bookings, please specify the number of guests to
+          receive an accurate quote. Let us help you create unforgettable memories!
+        </p>
+      </div>
     </div>
   );
 };
