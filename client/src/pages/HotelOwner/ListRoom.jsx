@@ -96,7 +96,7 @@ export const ListRoom = () => {
           <thead className="bg-gray-100 text-gray-800 text-xs uppercase">
             <tr>
               <th className="px-6 py-4 font-semibold">Name</th>
-              <th className="px-6 py-4 font-semibold max-sm:hidden">Facility</th>
+         
               <th className="px-6 py-4 font-semibold">Price / day</th>
               <th className="px-6 py-4 font-semibold text-center">Availability</th>
               <th className="px-6 py-4 font-semibold text-center">Delete</th>
@@ -107,7 +107,7 @@ export const ListRoom = () => {
             {rooms.map((item, index) => (
               <tr key={index}>
                 <td className="px-6 py-4">{item.roomType}</td>
-                <td className="px-6 py-4 max-sm:hidden">{item.amenities.join(', ')}</td>
+            
                 <td className="px-6 py-4">Rs. {item.pricePerNight}</td>
                 <td className="px-6 py-4 text-center">
                   <label className="inline-flex items-center cursor-pointer relative">

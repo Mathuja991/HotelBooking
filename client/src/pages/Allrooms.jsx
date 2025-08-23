@@ -175,14 +175,7 @@ const Allrooms = () => {
                
                 <span>Capacity: {room.capacity} guests</span>
               </div>
-              <div className='flex flex-wrap items-center mt-3 mb-6 gap-4'>
-                {room.amenities.map((item, index) => (
-                  <div key={index} className='flex items-center gap-2'>
-                    <img src={facilityIcons[item]} alt={item} className='w-5 h-5' />
-                    <p className='text-xs'>{item}</p>
-                  </div>
-                ))}
-              </div>
+
               <p className='text-xl font-medium text-gray-700'>
                 {currency === 'USD' ? '$' : 'Rs.'}{room.pricePerNight}/day
               </p>

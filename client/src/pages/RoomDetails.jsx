@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { assets, facilityIcons, roomCommonData } from "../assets/assets";
+import { assets } from "../assets/assets";
 import StarRating from "../components/StarRating";
 import { useAppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
@@ -19,6 +19,9 @@ const RoomDetails = () => {
   const [guests, setGuests] = useState(1);
   const [isAvailable, setIsAvailable] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  const [selectedAddOns, setSelectedAddOns] = useState([]);
+  const [selectedLunchMenu, setSelectedLunchMenu] = useState([]);
 
   const navigate = useNavigate();
 
@@ -54,13 +57,8 @@ const RoomDetails = () => {
       });
 
       if (data?.success) {
-        if (data.isAvailable) {
-          setIsAvailable(true);
-          toast.success("Room is available");
-        } else {
-          setIsAvailable(false);
-          toast.error("Room is not available");
-        }
+        setIsAvailable(data.isAvailable);
+        toast[data.isAvailable ? "success" : "error"](data.isAvailable ? "Room is available" : "Room is not available");
       } else {
         toast.error(data?.message || "Could not check availability");
       }
@@ -107,6 +105,8 @@ const RoomDetails = () => {
           guestName,
           phoneNumber,
           paymentMethod: "Pay At Hotel",
+          lunchMenus: selectedLunchMenu,
+          optionalServices: selectedAddOns,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -135,15 +135,11 @@ const RoomDetails = () => {
     <div className="py-28 md:py-35 px-4 md:px-16 lg:px-24 xl:px-32">
       {/* Room Info */}
       <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
-        <h1 className="text-3xl md:text-4xl font-playfair">
-         {room.roomType}
-        </h1>
-      
+        <h1 className="text-3xl md:text-4xl font-playfair">{room.roomType}</h1>
       </div>
 
       <div className="flex items-center gap-1 mt-2">
         <StarRating />
-       
       </div>
 
       <div className="flex items-center gap-1 text-gray-500 mt-2">
@@ -162,30 +158,11 @@ const RoomDetails = () => {
                 key={i}
                 src={img}
                 onClick={() => setMainImage(img)}
-                className={`w-full rounded-xl shadow-md object-cover cursor-pointer ${
-                  mainImage === img ? "outline-3 outline-orange-500" : ""
-                }`}
+                className={`w-full rounded-xl shadow-md object-cover cursor-pointer ${mainImage === img ? "outline-3 outline-orange-500" : ""}`}
                 alt={`room-${i}`}
               />
             ))}
         </div>
-      </div>
-
-      <div className="flex flex-col md:flex-row md:justify-between mt-10">
-        <div className="flex flex-col">
-          <h1 className="text-3xl md:text-4xl font-playfair">
-            Make Every Moment Grand — Book the Perfect Hall in Minutes
-          </h1>
-          <div className="flex flex-wrap items-center mt-3 mb-6 gap-4">
-            {room.amenities?.map((item, i) => (
-              <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100">
-               
-                <p className="text-xs">{item}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-        <p className="text-2xl font-medium">${room.pricePerNight}/day</p>
       </div>
 
       {/* Booking Form */}
@@ -275,6 +252,64 @@ const RoomDetails = () => {
               required
             />
           </div>
+
+          {/* Optional Add-Ons */}
+          {room.optionalAddOns?.length > 0 && (
+            <div className="flex flex-col mt-4">
+              <label className="font-medium mb-1">Select Optional Add-ons</label>
+              <div className="flex flex-wrap gap-2">
+                {room.optionalAddOns.map((addon) => (
+                  <label key={addon._id} className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded cursor-pointer">
+                    <input
+                      type="checkbox"
+                      value={addon.name}
+                      checked={selectedAddOns.includes(addon.name)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setSelectedAddOns(prev =>
+                          prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
+                        );
+                      }}
+                    />
+                    <span>{addon.name} - ${addon.price}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+     {room.lunchMenus?.length > 0 && (
+  <div className="flex flex-col mt-4">
+    <label className="font-medium mb-1">Select Lunch Menu</label>
+    <div className="flex flex-wrap gap-2">
+      {room.lunchMenus.map((menuItem, idx) => {
+        const labelText = `${menuItem.menu} - ${menuItem.details} ($${menuItem.price})`;
+        return (
+          <label
+            key={idx}
+            className="flex items-center gap-2 bg-gray-100 px-3 py-2 rounded cursor-pointer"
+          >
+            <input
+              type="checkbox"
+              value={menuItem.menu}
+              checked={selectedLunchMenu.includes(menuItem.menu)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSelectedLunchMenu(prev =>
+                  prev.includes(value)
+                    ? prev.filter(v => v !== value)
+                    : [...prev, value]
+                );
+              }}
+            />
+            <span>{labelText}</span>
+          </label>
+        );
+      })}
+    </div>
+  </div>
+)}
+
         </div>
 
         <button
@@ -285,96 +320,6 @@ const RoomDetails = () => {
           {isAvailable ? (submitting ? "Booking..." : "Book Now") : "Check Availability"}
         </button>
       </form>
-
-    {/* Extra Info */}
-<div className="mt-25 space-y-4">
-  
-
-  {/* Included in Hall Fees */}
-  <div className="mt-10">
-    <h2 className="text-2xl font-semibold mb-4">What’s Included in Hall Fees</h2>
-    <ul className="list-disc list-inside text-gray-700 space-y-2">
-      <li>Entire hall with A/C usage for 5 hours</li>
-      <li>Wedding hall stage</li>
-      <li>Mass arrangements</li>
-    </ul>
-  </div>
-
-  {/* Optional Paid Services */}
-  <div className="mt-8">
-    <h2 className="text-2xl font-semibold mb-4">Optional Add-ons (Extra Charges Apply)</h2>
-    <p className="text-gray-500 mb-3">
-      You may bring your own, or the hotel owner can arrange these for an additional cost:
-    </p>
-    <ul className="list-disc list-inside text-gray-700 space-y-2">
-      <li>Auspicious arrangements</li>
-      <li>Musical instruments</li>
-      <li>Special stage decoration</li>
-      <li>Entrance decoration (Banana trees)</li>
-      <li>Iyer (Priest) services</li>
-      <li>Chair covers</li>
-    </ul>
-  </div>
-
- {/* Lunch Menu */}
-<div className="mt-8">
-  <h2 className="text-2xl font-semibold mb-4">Lunch Menu</h2>
-
-  {room.lunchMenus && room.lunchMenus.length > 0 ? (
-    <div className="grid md:grid-cols-2 gap-4">
-      {room.lunchMenus.map((menu, idx) => (
-        <div
-          key={idx}
-          className="p-4 rounded-xl shadow-sm transition-transform transform hover:scale-105"
-          style={{
-            backgroundColor: `hsl(${(idx * 45) % 360}, 70%, 90%)`, // light pastel colors
-            color: "#333"
-          }}
-        >
-          <p className="font-semibold text-lg mb-1">{`Menu${idx + 1}`}</p>
-          <p className="text-gray-700 text-sm">{menu.details || "No details provided"}</p>
-        </div>
-      ))}
-    </div>
-  ) : (
-    <p className="text-gray-500">No lunch menu information available.</p>
-  )}
-
-  {room.extraCurry && (
-    <p className="mt-4 font-semibold text-gray-800">
-      Extra Curry: <span className="text-gray-700">{room.extraCurry}</span>
-    </p>
-  )}
-  {room.paidCurry && (
-    <p className="mt-1 font-semibold text-gray-800">
-      Paid Curry: <span className="text-gray-700">{room.paidCurry}</span>
-    </p>
-  )}
-</div>
-<div className="mt-10">
-    <h2 className="text-2xl font-semibold mb-4">Refreshments & Rules</h2>
-    <ul className="list-disc list-inside text-gray-700 space-y-2">
-      <li>Refreshments such as <strong>Poonthi Laddu </strong>, <strong>Soda / Juice / Nescafe / Ice Cream</strong>, and <strong>Water bottles</strong> will be provided.</li>
-      <li>Refreshments <strong>cannot be brought from outside</strong>.</li>
-      <li>If you wish, you may bring <strong>lunch from outside</strong>, but a <strong>service charge</strong> will apply.</li>
-      <li><strong>Non-veg food is also allowed</strong> in the hall.</li>
-      <li><strong>Refreshments in glass or one-day cups are NOT allowed</strong>. Only <strong>sealed bottles</strong> are permitted.</li>
-    </ul>
-  </div> 
-
-</div>
-
-
-      <div className="max-w-7xl border-y border-gray-300 my-15 py-10 text-gray-500">
-        <p>
-          Welcome to our spacious and elegant hall — the perfect venue for your special events. Whether you're planning a wedding,
-          reception, corporate event, or private gathering, our hall offers a refined atmosphere that blends comfort and
-          sophistication. Pricing is based on standard guest capacity; for group bookings, please specify the number of guests to
-          receive an accurate quote. Let us help you create unforgettable memories!
-        </p>
-      </div>
-
-      
     </div>
   );
 };

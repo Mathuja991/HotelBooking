@@ -45,43 +45,45 @@ export const checkAvailabilityAPI = async (req, res) => {
 // --- API: Create Booking ---
 export const createBooking = async (req, res) => {
   try {
-    const { room, checkInDate, startTime, endTime, guests, guestName, phoneNumber, paymentMethod } = req.body;
+    const {
+      room,
+      checkInDate,
+      startTime,
+      endTime,
+      guests,
+      guestName,
+      phoneNumber,
+      paymentMethod,
+      lunchMenus = [],        // NEW: selected lunch menus from frontend
+      optionalServices = [],  // NEW: selected extra services from frontend
+    } = req.body;
 
-    // Clerk user ID
     const userId = req?.auth?.userId;
-    if (!userId) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
-    }
+    if (!userId) return res.status(401).json({ success: false, message: "Unauthorized" });
 
     // basic validation
     if (!room || !checkInDate || !startTime || !endTime || !guests || !guestName || !phoneNumber) {
       return res.status(400).json({ success: false, message: "All fields are required" });
     }
-    if (startTime >= endTime) {
-      return res.status(400).json({ success: false, message: "End time must be after start time" });
-    }
+    if (startTime >= endTime) return res.status(400).json({ success: false, message: "End time must be after start time" });
 
-    // room & hotel
     const roomDoc = await Room.findById(room).populate("hotel");
     if (!roomDoc) return res.status(404).json({ success: false, message: "Room not found" });
+
     const hotelId = roomDoc.hotel?._id;
     if (!hotelId) return res.status(400).json({ success: false, message: "Room is not linked to a hotel" });
 
-    // normalize check-in date
     const checkDate = new Date(checkInDate);
     checkDate.setHours(0, 0, 0, 0);
 
-    // availability
     const isAvailable = await checkAvailability({ room, checkInDate: checkDate, startTime, endTime });
-    if (!isAvailable) {
-      return res.status(400).json({ success: false, message: "Room not available for this time" });
-    }
+    if (!isAvailable) return res.status(400).json({ success: false, message: "Room not available for this time" });
 
-    // simple pricing (adjust as desired)
-    // if you price per day, use pricePerNight
-    // if you price per hour, calculate hours from start-end
+    // Calculate total price including optional services (example)
     const pricePerDay = roomDoc.pricePerNight || 0;
-    const totalPrice = pricePerDay; // keep simple; adapt to your business rules
+    const lunchPrice = lunchMenus.length * 10; // example: $10 per selected menu
+    const servicesPrice = optionalServices.length * 5; // example: $5 per service
+    const totalPrice = pricePerDay + lunchPrice + servicesPrice;
 
     const booking = await Booking.create({
       user: userId,
@@ -97,6 +99,8 @@ export const createBooking = async (req, res) => {
       status: "pending",
       paymentMethod: paymentMethod || "Pay At Hotel",
       isPaid: false,
+      lunchMenus,         // store selected lunch menus
+      optionalServices,   // store selected extra services
     });
 
     return res.status(201).json({ success: true, booking });
@@ -105,7 +109,6 @@ export const createBooking = async (req, res) => {
     return res.status(500).json({ success: false, message: "Booking failed" });
   }
 };
-
 
 // --- API: Get Hotel Bookings ---
 export const getHotelBookings = async (req, res) => {

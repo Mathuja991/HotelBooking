@@ -32,6 +32,9 @@ const bookingSchema = new mongoose.Schema(
       default: "Pay At Hotel",
     },
     isPaid: { type: Boolean, default: false },
+     // NEW FIELDS
+    lunchMenus: [{ type: String }],          // array of selected lunch menus
+    optionalServices: [{ type: String }],    // array of selected extra services
   },
   { timestamps: true }
 );
