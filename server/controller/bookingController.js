@@ -243,3 +243,33 @@ export const getAllBookings = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch bookings" });
   }
 };
+
+// --- API: Update Payment Status ---
+export const updatePaymentStatus = async (req, res) => {
+  try {
+    const { id } = req.params; // booking id
+    const { isPaid } = req.body;
+
+    // only hotelOwner or admin can update
+    if (req.user.role !== "hotelOwner" && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Unauthorized" });
+    }
+
+    const booking = await Booking.findById(id);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    booking.isPaid = isPaid;
+    await booking.save();
+
+    return res.json({
+      success: true,
+      message: `Booking marked as ${isPaid ? "Paid" : "Unpaid"}`,
+      booking,
+    });
+  } catch (error) {
+    console.error("Update Payment Error:", error);
+    res.status(500).json({ success: false, message: "Failed to update payment status" });
+  }
+};
