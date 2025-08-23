@@ -1,5 +1,3 @@
-
-
 //import cloudinary from "../config/cloudinary.js";
 import { messageInRaw } from "svix";
 import Hotel from "../models/Hotel.js";
@@ -14,16 +12,18 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// ✅ Create Room
 export const createRoom = async (req, res) => {
   try {
     const { userId } = getAuth(req);
     if (!userId) return res.json({ success: false, message: "User not authenticated" });
 
-    const { roomType, pricePerNight, capacity, amenities, lunchMenus, extraCurry, paidCurry } = req.body;
+    const { roomType, pricePerNight, capacity, lunchMenus, extraCurry, paidCurry, optionalAddOns } = req.body;
 
     const hotel = await Hotel.findOne({ owner: userId });
     if (!hotel) return res.json({ success: false, message: "No Hotel Found" });
 
+    // Upload images to cloudinary
     const uploadImages = req.files.map(async (file) => {
       const response = await cloudinary.uploader.upload(file.path);
       return response.secure_url;
@@ -31,16 +31,17 @@ export const createRoom = async (req, res) => {
 
     const images = await Promise.all(uploadImages);
 
+    // Save room with structured lunchMenus + optionalAddOns
     await Room.create({
       hotel: hotel._id,
       roomType,
       pricePerNight: +pricePerNight,
       capacity,
-      amenities: JSON.parse(amenities),
       images,
       lunchMenus: lunchMenus ? JSON.parse(lunchMenus) : [],
       extraCurry: extraCurry || "",
       paidCurry: paidCurry || "",
+      optionalAddOns: optionalAddOns ? JSON.parse(optionalAddOns) : []
     });
 
     res.json({ success: true, message: "Room created successfully" });
@@ -49,6 +50,7 @@ export const createRoom = async (req, res) => {
   }
 };
 
+// ✅ Get All Available Rooms
 export const getRooms = async (req, res) => {
   try {
     const rooms = await Room.find({ isAvailable: true }).populate({
@@ -62,41 +64,37 @@ export const getRooms = async (req, res) => {
   }
 };
 
-
-
-
-
-
+// ✅ Get Rooms by Owner
 export const getOwnerrooms = async (req, res) => {
-    try {
-        const userId = req.auth.userId; // ✅ Get userId directly
+  try {
+    const userId = req.auth.userId; // ✅ Get userId directly
 
-        const hotelData = await Hotel.findOne({ owner: userId });
-        if (!hotelData) return res.json({ success: false, message: "No Hotel Found" });
+    const hotelData = await Hotel.findOne({ owner: userId });
+    if (!hotelData) return res.json({ success: false, message: "No Hotel Found" });
 
-        const rooms = await Room.find({ hotel: hotelData._id.toString() }).populate("hotel");
+    const rooms = await Room.find({ hotel: hotelData._id.toString() }).populate("hotel");
 
-        res.json({ success: true, rooms });
-    } catch (error) {
-        res.json({ success: false, message: error.message });
-    }
+    res.json({ success: true, rooms });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
 };
 
+// ✅ Toggle Availability
+export const toggleRoomAvailability = async (req, res) => {
+  try {
+    const { roomId } = req.body;
+    const roomData = await Room.findById(roomId);
+    roomData.isAvailable = !roomData.isAvailable;
+    await roomData.save();
+    res.json({ success: true, message: "Room availability Updated" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+};
 
-export const toggleRoomAvailability = async (req,res)=>{
-        try {
-        const { roomId } = req.body;
-        const roomData = await Room.findById(roomId);
-        roomData.isAvailable = !roomData.isAvailable;
-        await roomData.save();
-        res.json({ success: true, message: "Room availability Updated" });
-        } catch (error) {
-        res.json({success: false, message: error.message});
-        }
-    }
-
-
-    export const deleteRoom = async (req, res) => {
+// ✅ Delete Room
+export const deleteRoom = async (req, res) => {
   try {
     const { roomId } = req.params;
 
@@ -111,6 +109,3 @@ export const toggleRoomAvailability = async (req,res)=>{
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
-
-
-

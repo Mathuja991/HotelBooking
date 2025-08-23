@@ -9,30 +9,21 @@ const AddRoom = () => {
 
     const [images, setImages] = useState({ 1: null, 2: null, 3: null, 4: null });
 
-    const initialAmenities = {
-        'Air Conditioning(Extra)': false,
-        'Auspicious arrangements': false,
-        'Entrance decoration (Banana trees)': false,
-        'Iyer (Priest) services': false,
-        'Musical instruments': false,
-        'Special stage decoration': false,
-        'Catering Service': false,
-        'Chair covers': false,
-    };
+    // ✅ Lunch Menus
+    const [lunchMenus, setLunchMenus] = useState([
+        { menu: "Menu1", details: "", price: "" },
+        { menu: "Menu2", details: "", price: "" },
+    ]);
 
-    const initialLunchMenus = {
-        menu1: { selected: false, details: '' },
-        menu2: { selected: false, details: '' },
-        menu3: { selected: false, details: '' },
-        menu4: { selected: false, details: '' },
-    };
+    // ✅ Optional Add-ons
+    const [optionalAddOns, setOptionalAddOns] = useState([
+        { name: "", price: "" }
+    ]);
 
     const [inputs, setInputs] = useState({
         roomType: '',
         pricePerNight: '',
         capacity: '',
-        amenities: initialAmenities,
-        lunchMenus: initialLunchMenus,
         extraCurry: '',
         paidCurry: '',
     });
@@ -54,13 +45,8 @@ const AddRoom = () => {
             formData.append('pricePerNight', inputs.pricePerNight);
             formData.append('capacity', inputs.capacity);
 
-            const amenities = Object.keys(inputs.amenities).filter(key => inputs.amenities[key]);
-            formData.append('amenities', JSON.stringify(amenities));
-
-            const selectedMenus = Object.keys(inputs.lunchMenus)
-                .filter(key => inputs.lunchMenus[key].selected)
-                .map(key => ({ menu: key, details: inputs.lunchMenus[key].details }));
-            formData.append('lunchMenus', JSON.stringify(selectedMenus));
+            formData.append('lunchMenus', JSON.stringify(lunchMenus.filter(l => l.details && l.price)));
+            formData.append('optionalAddOns', JSON.stringify(optionalAddOns.filter(a => a.name && a.price)));
 
             formData.append('extraCurry', inputs.extraCurry);
             formData.append('paidCurry', inputs.paidCurry);
@@ -75,15 +61,9 @@ const AddRoom = () => {
 
             if (data.success) {
                 toast.success(data.message);
-                setInputs({
-                    roomType: '',
-                    pricePerNight: '',
-                    capacity: '',
-                    amenities: initialAmenities,
-                    lunchMenus: initialLunchMenus,
-                    extraCurry: '',
-                    paidCurry: '',
-                });
+                setInputs({ roomType: '', pricePerNight: '', capacity: '', extraCurry: '', paidCurry: '' });
+                setLunchMenus([{ menu: "Menu1", details: "", price: "" }]);
+                setOptionalAddOns([{ name: "", price: "" }]);
                 setImages({ 1: null, 2: null, 3: null, 4: null });
             } else {
                 toast.error(data.message);
@@ -99,8 +79,9 @@ const AddRoom = () => {
     return (
         <div>
             <form onSubmit={onSubmitHandler}>
-                <Title align='left' font='outfit' title='Add Hall' subTitle='Fill in the hall information, amenities, and lunch menu details to make it available for customers.' />
+                <Title align='left' font='outfit' title='Add Hall' subTitle='Fill in the hall information, lunch menus, and optional add-ons.' />
 
+                {/* Upload Images */}
                 <p className='text-gray-800 mt-10'>Images</p>
                 <div className='grid grid-cols-2 sm:flex gap-4 my-2 flex-wrap'>
                     {Object.keys(images).map((key) => (
@@ -113,14 +94,15 @@ const AddRoom = () => {
                     ))}
                 </div>
 
+                {/* Hall Info */}
                 <div className='w-full flex max-sm:flex-col sm:gap-4 mt-4'>
                     <div className='flex-1 max-w-48'>
                         <p className='text-gray-800 mt-4'>Hall Type</p>
                         <select value={inputs.roomType} onChange={e => setInputs({ ...inputs, roomType: e.target.value })}
                             className='border opacity-70 border-gray-300 mt-1 rounded p-2 w-full'>
                             <option value="">Select Hall</option>
-                            <option value="hall1">Hall 1</option>
-                            <option value="hall2">Hall 2</option>
+                            <option value="Hall1">Hall 1</option>
+                            <option value="Hall2">Hall 2</option>
                         </select>
                     </div>
 
@@ -141,59 +123,80 @@ const AddRoom = () => {
                     />
                 </div>
 
-                <p className='text-gray-800 font-semibold mt-8 mb-2'>Amenities</p>
-                <div className='flex flex-col flex-wrap mt-1 text-gray-400 max-w-xl'>
-                    {Object.keys(inputs.amenities).map((amenity, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                            <input type="checkbox"
-                                id={`amenities${index + 1}`} checked={inputs.amenities[amenity]}
-                                onChange={() => setInputs({ ...inputs, amenities: { ...inputs.amenities, [amenity]: !inputs.amenities[amenity] } })}
-                            />
-                            <label htmlFor={`amenities${index + 1}`}>{amenity}</label>
-                        </div>
-                    ))}
-                </div>
-
+                {/* Lunch Menus */}
                 <p className='text-gray-800 font-semibold mt-8 mb-2'>Lunch Menu Options</p>
-                <div className='flex flex-col flex-wrap mt-1 text-gray-400 max-w-xl gap-2'>
-                    {Object.keys(inputs.lunchMenus).map((menu, index) => (
-                        <div key={index} className="flex items-center gap-2">
-                            <input
-                                type="checkbox"
-                                id={`lunchMenu${index + 1}`}
-                                checked={inputs.lunchMenus[menu].selected}
-                                onChange={() => setInputs({
-                                    ...inputs,
-                                    lunchMenus: {
-                                        ...inputs.lunchMenus,
-                                        [menu]: {
-                                            ...inputs.lunchMenus[menu],
-                                            selected: !inputs.lunchMenus[menu].selected
-                                        }
-                                    }
-                                })}
-                            />
-                            <label htmlFor={`lunchMenu${index + 1}`}>{`Menu ${index + 1}`}</label>
-                            <input
-                                type="text"
-                                placeholder='Type menu details'
-                                className='border border-gray-300 mt-1 rounded p-2 flex-1'
-                                value={inputs.lunchMenus[menu].details}
-                                onChange={e => setInputs({
-                                    ...inputs,
-                                    lunchMenus: {
-                                        ...inputs.lunchMenus,
-                                        [menu]: {
-                                            ...inputs.lunchMenus[menu],
-                                            details: e.target.value
-                                        }
-                                    }
-                                })}
-                            />
-                        </div>
-                    ))}
-                </div>
+                {lunchMenus.map((menu, index) => (
+                    <div key={index} className="flex items-center gap-2 mb-2">
+                        <input
+                            type="text"
+                            placeholder="Menu name (e.g., Menu1)"
+                            className="border border-gray-300 rounded p-2"
+                            value={menu.menu}
+                            onChange={e => {
+                                const updated = [...lunchMenus];
+                                updated[index].menu = e.target.value;
+                                setLunchMenus(updated);
+                            }}
+                        />
+                        <input
+                            type="text"
+                            placeholder="Details (e.g., Rice, Curry)"
+                            className="border border-gray-300 rounded p-2 flex-1"
+                            value={menu.details}
+                            onChange={e => {
+                                const updated = [...lunchMenus];
+                                updated[index].details = e.target.value;
+                                setLunchMenus(updated);
+                            }}
+                        />
+                        <input
+                            type="number"
+                            placeholder="Price"
+                            className="border border-gray-300 rounded p-2 w-24"
+                            value={menu.price}
+                            onChange={e => {
+                                const updated = [...lunchMenus];
+                                updated[index].price = e.target.value;
+                                setLunchMenus(updated);
+                            }}
+                        />
+                    </div>
+                ))}
+                <button type="button" onClick={() => setLunchMenus([...lunchMenus, { menu: "", details: "", price: "" }])}
+                    className="text-sm text-blue-600 mt-2">+ Add Menu</button>
 
+                {/* Optional Add-ons */}
+                <p className='text-gray-800 font-semibold mt-8 mb-2'>Optional Add-ons</p>
+                {optionalAddOns.map((addon, index) => (
+                    <div key={index} className="flex items-center gap-2 mb-2">
+                        <input
+                            type="text"
+                            placeholder="Add-on name (e.g., Stage Decoration)"
+                            className="border border-gray-300 rounded p-2 flex-1"
+                            value={addon.name}
+                            onChange={e => {
+                                const updated = [...optionalAddOns];
+                                updated[index].name = e.target.value;
+                                setOptionalAddOns(updated);
+                            }}
+                        />
+                        <input
+                            type="number"
+                            placeholder="Price"
+                            className="border border-gray-300 rounded p-2 w-24"
+                            value={addon.price}
+                            onChange={e => {
+                                const updated = [...optionalAddOns];
+                                updated[index].price = e.target.value;
+                                setOptionalAddOns(updated);
+                            }}
+                        />
+                    </div>
+                ))}
+                <button type="button" onClick={() => setOptionalAddOns([...optionalAddOns, { name: "", price: "" }])}
+                    className="text-sm text-blue-600 mt-2">+ Add Add-on</button>
+
+                {/* Extra Curry */}
                 <p className='text-gray-800 mt-4'>Extra Curry Details</p>
                 <input type="text" placeholder='e.g., Chicken Curry, Fish Curry'
                     className='border border-gray-300 mt-1 rounded p-2 w-full max-w-md'
@@ -201,6 +204,7 @@ const AddRoom = () => {
                     onChange={e => setInputs({ ...inputs, extraCurry: e.target.value })}
                 />
 
+                {/* Paid Curry */}
                 <p className='text-gray-800 mt-4'>Paid Curry Details</p>
                 <input type="text" placeholder='e.g., Prawn Curry (Rs. 500)'
                     className='border border-gray-300 mt-1 rounded p-2 w-full max-w-md'
@@ -208,6 +212,7 @@ const AddRoom = () => {
                     onChange={e => setInputs({ ...inputs, paidCurry: e.target.value })}
                 />
 
+                {/* Submit */}
                 <button disabled={loading} type="submit"
                     className={`bg-primary text-white px-8 py-2 rounded mt-8 cursor-pointer ${loading && 'opacity-70 cursor-not-allowed'}`}>
                     {loading ? 'Adding...' : "Add hall"}

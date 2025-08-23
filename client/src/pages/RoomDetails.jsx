@@ -136,14 +136,14 @@ const RoomDetails = () => {
       {/* Room Info */}
       <div className="flex flex-col md:flex-row items-start md:items-center gap-2">
         <h1 className="text-3xl md:text-4xl font-playfair">
-          {room.hotel?.name} <span className="font-inter text-sm">({room.roomType})</span>
+         {room.roomType}
         </h1>
-        <p className="text-xs font-inter py-1.5 px-3 text-white bg-orange-500 rounded-full">20% OFF</p>
+      
       </div>
 
       <div className="flex items-center gap-1 mt-2">
         <StarRating />
-        <p className="ml-2">200+ reviews</p>
+       
       </div>
 
       <div className="flex items-center gap-1 text-gray-500 mt-2">
@@ -179,7 +179,7 @@ const RoomDetails = () => {
           <div className="flex flex-wrap items-center mt-3 mb-6 gap-4">
             {room.amenities?.map((item, i) => (
               <div key={i} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100">
-                <img src={facilityIcons} alt="icon" className="w-5 h-5" />
+               
                 <p className="text-xs">{item}</p>
               </div>
             ))}
@@ -316,24 +316,52 @@ const RoomDetails = () => {
     </ul>
   </div>
 
-  {/* Lunch Menu */}
-    <div className="mt-8">
-          <h2 className="text-2xl font-semibold mb-4">Lunch Menu</h2>
-          {room.lunchMenus?.length > 0 ? (
-            <div className="grid md:grid-cols-2 gap-4 text-gray-700">
-              {room.lunchMenus.map((menu, idx) => (
-                <ul key={idx} className="list-disc list-inside space-y-1">
-                  <li className="font-medium">{menu.menu}</li>
-                  <li>{menu.details}</li>
-                </ul>
-              ))}
-            </div>
-          ) : (
-            <p className="text-gray-500">Menu details not available.</p>
-          )}
-          {room.extraCurry && <p className="mt-2 text-gray-700">Extra Curry: {room.extraCurry}</p>}
-          {room.paidCurry && <p className="mt-1 text-gray-700">Paid Curry: {room.paidCurry}</p>}
+ {/* Lunch Menu */}
+<div className="mt-8">
+  <h2 className="text-2xl font-semibold mb-4">Lunch Menu</h2>
+
+  {room.lunchMenus && room.lunchMenus.length > 0 ? (
+    <div className="grid md:grid-cols-2 gap-4">
+      {room.lunchMenus.map((menu, idx) => (
+        <div
+          key={idx}
+          className="p-4 rounded-xl shadow-sm transition-transform transform hover:scale-105"
+          style={{
+            backgroundColor: `hsl(${(idx * 45) % 360}, 70%, 90%)`, // light pastel colors
+            color: "#333"
+          }}
+        >
+          <p className="font-semibold text-lg mb-1">{`Menu${idx + 1}`}</p>
+          <p className="text-gray-700 text-sm">{menu.details || "No details provided"}</p>
         </div>
+      ))}
+    </div>
+  ) : (
+    <p className="text-gray-500">No lunch menu information available.</p>
+  )}
+
+  {room.extraCurry && (
+    <p className="mt-4 font-semibold text-gray-800">
+      Extra Curry: <span className="text-gray-700">{room.extraCurry}</span>
+    </p>
+  )}
+  {room.paidCurry && (
+    <p className="mt-1 font-semibold text-gray-800">
+      Paid Curry: <span className="text-gray-700">{room.paidCurry}</span>
+    </p>
+  )}
+</div>
+<div className="mt-10">
+    <h2 className="text-2xl font-semibold mb-4">Refreshments & Rules</h2>
+    <ul className="list-disc list-inside text-gray-700 space-y-2">
+      <li>Refreshments such as <strong>Poonthi Laddu </strong>, <strong>Soda / Juice / Nescafe / Ice Cream</strong>, and <strong>Water bottles</strong> will be provided.</li>
+      <li>Refreshments <strong>cannot be brought from outside</strong>.</li>
+      <li>If you wish, you may bring <strong>lunch from outside</strong>, but a <strong>service charge</strong> will apply.</li>
+      <li><strong>Non-veg food is also allowed</strong> in the hall.</li>
+      <li><strong>Refreshments in glass or one-day cups are NOT allowed</strong>. Only <strong>sealed bottles</strong> are permitted.</li>
+    </ul>
+  </div> 
+
 </div>
 
 
