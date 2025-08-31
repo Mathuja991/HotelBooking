@@ -5,8 +5,17 @@ import parser from "../configs/multer.js";
 
 const router = express.Router();
 
-// Upload multiple files with field name "media"
-router.post("/create", protect, parser.array("media", 10), createEvent);
+// ✅ handle 1 cover image + multiple extra media
+router.post(
+  "/create",
+  protect,
+  parser.fields([
+    { name: "image", maxCount: 1 },   // cover
+    { name: "media", maxCount: 10 }   // extra
+  ]),
+  createEvent
+);
+
 router.get("/all", getEvents);
 
 export default router;

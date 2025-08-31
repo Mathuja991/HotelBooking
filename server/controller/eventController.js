@@ -4,33 +4,37 @@ export const createEvent = async (req, res) => {
   try {
     const { title, description, date } = req.body;
 
-    if (!req.files || req.files.length === 0) {
+    if (!req.files || (!req.files.image && !req.files.media)) {
       return res.status(400).json({ message: "No media files uploaded" });
     }
 
-     const image = req.files.map(file => ({
-      url: file.path, 
-      type: file.mimetype.startsWith("video") ? "video" : "image",
-    }));
+    // ✅ cover image (optional but usually required)
+    const coverImage = req.files.image
+      ? req.files.image[0].path
+      : null;
 
-    // Cloudinary-multer already uploaded, so each file has file.path (Cloudinary URL)
-    const media = req.files.map(file => ({
-      url: file.path, 
-      type: file.mimetype.startsWith("video") ? "video" : "image",
-    }));
+    // ✅ extra media
+    const media = req.files.media
+      ? req.files.media.map((file) => ({
+          url: file.path,
+          type: file.mimetype.startsWith("video") ? "video" : "image",
+        }))
+      : [];
 
     const newEvent = await Event.create({
       title,
       description,
       date,
-      image,
-      media,   // ✅ save into "media" array
+      coverImage,
+      media,
     });
 
     res.status(201).json(newEvent);
   } catch (error) {
     console.error("❌ Event creation failed:", error);
-    res.status(500).json({ message: "Failed to create event", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Failed to create event", error: error.message });
   }
 };
 
