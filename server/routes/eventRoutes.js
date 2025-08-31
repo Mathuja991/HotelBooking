@@ -6,7 +6,7 @@ import parser from "../configs/multer.js";
 const router = express.Router();
 
 // Upload multiple files
-router.post("/create", protect, parser.array("media"), createEvent);
+router.post("/create",  parser.array("media"), createEvent);
 router.get("/all", getEvents);
 
 export default router;
