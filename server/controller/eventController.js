@@ -1,30 +1,47 @@
 import Event from "../models/eventModel.js";
+import { v2 as cloudinary } from "cloudinary";
 
 export const createEvent = async (req, res) => {
   try {
     const { title, description, date } = req.body;
 
     if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ message: "No media files uploaded" });
+      return res.status(400).json({ message: "At least one image is required" });
     }
 
-    // Cloudinary-multer already uploaded, so each file has file.path (Cloudinary URL)
-    const media = req.files.map(file => ({
-      url: file.path, 
-      type: file.mimetype.startsWith("video") ? "video" : "image",
-    }));
+    let mainImageUrl = "";
+    const mediaUrls = [];
+
+    // First file = main cover image
+    const mainUpload = await cloudinary.uploader.upload(req.files[0].path, {
+      folder: "events",
+    });
+    mainImageUrl = mainUpload.secure_url;
+
+    // Remaining files = extra media (images/videos)
+    for (let i = 1; i < req.files.length; i++) {
+      const file = req.files[i];
+
+      const upload = await cloudinary.uploader.upload(file.path, {
+        folder: "events/media",
+        resource_type: "auto", // auto = image/video support
+      });
+
+      mediaUrls.push(upload.secure_url);
+    }
 
     const newEvent = await Event.create({
       title,
       description,
       date,
-      media,   // ✅ save into "media" array
+      image: mainImageUrl,
+      media: mediaUrls,
     });
 
     res.status(201).json(newEvent);
   } catch (error) {
     console.error("❌ Event creation failed:", error);
-    res.status(500).json({ message: "Failed to create event", error: error.message });
+    res.status(500).json({ message: "Failed to create event", error });
   }
 };
 
@@ -33,7 +50,6 @@ export const getEvents = async (req, res) => {
     const events = await Event.find().sort({ createdAt: -1 });
     res.json(events);
   } catch (err) {
-    console.error("❌ Error fetching events:", err);
     res.status(500).json({ message: "Error fetching events" });
   }
 };
