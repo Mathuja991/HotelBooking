@@ -1,15 +1,15 @@
 import mongoose from "mongoose";
 
-const eventSchema = new mongoose.Schema(
-  {
-    title: { type: String, required: true },
-    description: { type: String, required: true },
-    date: { type: Date, required: true },
-    media: [{ type: String }], // store array of Cloudinary URLs
-  },
-  { timestamps: true }
-);
+const eventSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: String,
+  media: [
+    {
+      url: String,
+      type: { type: String, enum: ["image", "video"], required: true } // image or video
+    }
+  ],
+  createdAt: { type: Date, default: Date.now }
+});
 
-const Event = mongoose.model("Event", eventSchema);
-
-export default Event;
+export default mongoose.model("Event", eventSchema);

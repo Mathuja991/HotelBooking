@@ -6,25 +6,21 @@ import { v2 as cloudinary } from "cloudinary";
 
 export const createEvent = async (req, res) => {
   try {
-    const { title, description, date } = req.body;
+    const { title, description, date, image } = req.body;
 
-    let mediaUrls = [];
-
-    // Handle uploaded files from multer
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
-        const uploadedResponse = await cloudinary.uploader.upload(file.path, {
-          folder: "events",
-        });
-        mediaUrls.push(uploadedResponse.secure_url);
-      }
+    let imageUrl = "";
+    if (image) {
+      const uploadedResponse = await cloudinary.uploader.upload(image, {
+        folder: "events",
+      });
+      imageUrl = uploadedResponse.secure_url;
     }
 
     const newEvent = await Event.create({
       title,
       description,
       date,
-      media: mediaUrls, // Save multiple images
+      image: imageUrl,
     });
 
     res.status(201).json(newEvent);
