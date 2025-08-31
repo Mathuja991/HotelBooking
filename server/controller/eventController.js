@@ -47,3 +47,15 @@ export const getEvents = async (req, res) => {
     res.status(500).json({ message: "Error fetching events" });
   }
 };
+
+
+export const getEventById = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ message: "Event not found" });
+    res.json(event);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching event" });
+  }
+};

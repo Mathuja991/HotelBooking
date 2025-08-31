@@ -1,5 +1,5 @@
 import express from "express";
-import { createEvent, getEvents } from "../controller/eventController.js";
+import { createEvent, getEvents ,getEventById} from "../controller/eventController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import parser from "../configs/multer.js";
 
@@ -17,5 +17,7 @@ router.post(
 );
 
 router.get("/all", getEvents);
+router.get("/:id", getEventById);
+
 
 export default router;
