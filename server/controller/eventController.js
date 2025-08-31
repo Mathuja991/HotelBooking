@@ -1,22 +1,32 @@
 import Event from "../models/eventModel.js";
 
 
+import { v2 as cloudinary } from "cloudinary";
+
+
 export const createEvent = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, date, image } = req.body;
 
-    const media = req.files.map((file) => ({
-      url: file.path,
-      type: file.mimetype.startsWith("video") ? "video" : "image",
-    }));
+    let imageUrl = "";
+    if (image) {
+      const uploadedResponse = await cloudinary.uploader.upload(image, {
+        folder: "events",
+      });
+      imageUrl = uploadedResponse.secure_url;
+    }
 
-    const newEvent = new Event({ title, description, media });
-    await newEvent.save();
+    const newEvent = await Event.create({
+      title,
+      description,
+      date,
+      image: imageUrl,
+    });
 
     res.status(201).json(newEvent);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error creating event", error: err.message });
+  } catch (error) {
+    console.error("❌ Event creation failed:", error);
+    res.status(500).json({ message: "Failed to create event", error });
   }
 };
 
