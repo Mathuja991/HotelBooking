@@ -8,6 +8,7 @@ getUserBookings,
 getOwnerRoomsWithBookings,
 getAllBookings,
 updatePaymentStatus,
+updateBookingStatus,
 
 } from '../controller/bookingController.js';
 import { protect } from '../middleware/authMiddleware.js';
@@ -21,5 +22,10 @@ bookingRouter.get('/hotel', protect, getHotelBookings);
 bookingRouter.get('/owner', protect, getOwnerRoomsWithBookings);
 bookingRouter.get('/all', protect, getAllBookings);
 bookingRouter.put("/:id/pay", protect, updatePaymentStatus);
+
+
+
+
+bookingRouter.put("/:id/status", protect, updateBookingStatus);
 
 export default bookingRouter

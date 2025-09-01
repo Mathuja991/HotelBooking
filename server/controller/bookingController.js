@@ -292,3 +292,45 @@ export const updatePaymentStatus = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to update payment status" });
   }
 };
+
+
+// --- API: Update Booking Status (Approve/Reject by Admin/Owner) ---
+export const updateBookingStatus = async (req, res) => {
+  try {
+    const { id } = req.params;  // booking id
+    const { status } = req.body; // "confirmed" or "cancelled"
+
+    if (!["confirmed", "cancelled"].includes(status)) {
+      return res.status(400).json({ success: false, message: "Invalid status" });
+    }
+
+    // only hotelOwner or admin can approve/reject
+    if (req.user.role !== "hotelOwner" && req.user.role !== "admin") {
+      return res.status(403).json({ success: false, message: "Unauthorized" });
+    }
+
+    const booking = await Booking.findById(id).populate("room");
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    booking.status = status;
+    await booking.save();
+
+    // (Optional) Send email to user
+    // await sendEmail({
+    //   to: booking.userEmail,
+    //   subject: `Booking ${status === "confirmed" ? "Approved" : "Rejected"}`,
+    //   text: `Your booking for ${booking.room.roomType} is now ${status}.`
+    // });
+
+    return res.json({
+      success: true,
+      message: `Booking ${status}`,
+      booking,
+    });
+  } catch (error) {
+    console.error("Update Booking Status Error:", error);
+    res.status(500).json({ success: false, message: "Failed to update booking status" });
+  }
+};
