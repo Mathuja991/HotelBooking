@@ -87,7 +87,7 @@ export const createBooking = async (req, res) => {
     if (lunchMenus.length) {
       lunchMenus.forEach(menuName => {
         const menuItem = roomDoc.lunchMenus.find(m => m.menu === menuName);
-        if (menuItem) totalPrice += menuItem.price;
+        if (menuItem) totalPrice += menuItem.price*guests;
       });
     }
 
