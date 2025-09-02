@@ -1,27 +1,24 @@
 import nodemailer from "nodemailer";
 
-const sendEmail = async (to, subject, text, html) => {
-  try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail", // or use your SMTP provider
-      auth: {
-        user: process.env.SMTP_USER,  // your email
-        pass: process.env.SMTP_PASS,  // app password (not normal password!)
-      },
-    });
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER, // your Gmail address
+    pass: process.env.EMAIL_PASS, // your Gmail App Password
+  },
+});
 
-    await transporter.sendMail({
-      from: `"Hall Booking System" <${process.env.SMTP_USER}>`,
+export const sendEmail = async (to, subject, html) => {
+  try {
+    const info = await transporter.sendMail({
+      from: `"Kanapathi Hall" <${process.env.EMAIL_USER}>`,
       to,
       subject,
-      text,
       html,
     });
 
-    console.log("✅ Email sent successfully");
+    console.log("✅ Email sent:", info.messageId);
   } catch (error) {
-    console.error("❌ Email sending failed:", error);
+    console.error("❌ Email error:", error);
   }
 };
-
-export default sendEmail;
