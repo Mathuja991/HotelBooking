@@ -4,11 +4,15 @@ import dotenv from "dotenv";
 dotenv.config(); // load .env variables
 
 // Create transporter
+
+
 const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "214mathu@gmail.com",
-    pass: "jvyrtopacxehczzh",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // true for port 465
+   auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
