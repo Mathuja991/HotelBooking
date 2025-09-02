@@ -119,6 +119,16 @@ export const createBooking = async (req, res) => {
 
     // Optional: send confirmation email
     // await sendEmail({ to: userEmail, subject: "Booking Confirmed", text: "Your booking is confirmed!" });
+     await sendEmail(
+      "mathujaparameshwaran@gmail.com", // replace with real admin email
+      "New Booking Request",
+      `A new booking has been made by ${req.body.userName}. Please review.`,
+      `<h2>New Booking Request</h2>
+       <p><b>User:</b> ${req.body.userName}</p>
+       <p><b>Date:</b> ${req.body.date}</p>
+       <p><b>Status:</b> Pending (waiting for approval)</p>`
+    );
+
 
     return res.status(201).json({ success: true, booking });
   } catch (error) {
