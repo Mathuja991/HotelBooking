@@ -119,16 +119,23 @@ export const createBooking = async (req, res) => {
 
     // Optional: send confirmation email
     // await sendEmail({ to: userEmail, subject: "Booking Confirmed", text: "Your booking is confirmed!" });
-     await sendEmail(
-       console.log("Email "),
-      "mathujaparameshwaran@gmail.com", // replace with real admin email
-      "New Booking Request",
-      `A new booking has been made by ${req.body.userName}. Please review.`,
-      `<h2>New Booking Request</h2>
-       <p><b>User:</b> ${req.body.userName}</p>
-       <p><b>Date:</b> ${req.body.date}</p>
-       <p><b>Status:</b> Pending (waiting for approval)</p>`
-    );
+    try {
+  const emailInfo = await sendEmail(
+    "mathujaparameshwaran@gmail.com", // replace with admin email
+    "New Booking Request",
+    `A new booking has been made by ${guestName}. Please review.`,
+    `<h2>New Booking Request</h2>
+     <p><b>User:</b> ${guestName}</p>
+     <p><b>Phone:</b> ${phoneNumber}</p>
+     <p><b>Date:</b> ${checkDate.toDateString()}</p>
+     <p><b>Status:</b> Pending (waiting for approval)</p>`
+  );
+
+  console.log("✅ Email sent successfully!");
+  console.log("📨 Nodemailer Response:", emailInfo);
+} catch (emailErr) {
+  console.error("❌ Failed to send email:", emailErr.message);
+}
 
 
     return res.status(201).json({ success: true, booking });
