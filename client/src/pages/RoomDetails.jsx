@@ -364,7 +364,7 @@ const RoomDetails = () => {
                         );
                       }}
                     />
-                    <span>{addon.name} - ${addon.price}</span>
+                    <span>{addon.name} - Rs.{addon.price}</span>
                   </label>
                 ))}
               </div>
