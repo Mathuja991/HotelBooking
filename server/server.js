@@ -25,8 +25,8 @@ const app = express();
 
 app.use(cors({
     origin: '*', // ✅ Your frontend URL
-    //credentials: true // ✅ Allow cookies, auth headers, etc.
-     withCredentials: true,
+    credentials: true // ✅ Allow cookies, auth headers, etc.
+    // withCredentials: true,
 }));
 
 // ✅ Webhook must parse raw body and be ABOVE express.json()

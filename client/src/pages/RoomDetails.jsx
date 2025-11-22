@@ -110,7 +110,7 @@ const RoomDetails = () => {
         },
         {
           headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
+         Credentials: true,
         }
       );
 
