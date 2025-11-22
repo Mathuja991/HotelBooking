@@ -24,12 +24,12 @@ const HallCard = ({ room, index }) => {
 
                 {/* ✅ Capacity Section */}
                 <div className='flex items-center gap-2 mt-4'>
-                    <img src={assets.capacityIcon} alt="capacity-icon" className='w-5 h-5' />
+                 
                     <p className='text-gray-700 text-sm'>{room.capacity} Guests</p>
                 </div>
 
                 <div className='flex items-center justify-between mt-4'>
-                    <p><span className='text-xl text-gray-800'>${room.pricePerNight}</span> / day</p>
+                    <p><span className='text-xl text-gray-800'>Rs{room.pricePerNight}</span> / day</p>
                     <button className='px-4 py-2 text-sm font-medium border border-gray-300 rounded hover:bg-gray-50 transition-all cursor-pointer'>Book now</button>
                 </div>
             </div>
