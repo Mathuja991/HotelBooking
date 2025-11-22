@@ -50,7 +50,7 @@ const Navbar = () => {
             {/* Logo */}
                 <Link to='/'>
                     <p className={`text-3xl font-bold font-serif text-white ${isScrolled && "invert opacity-80"}`}>
-                        KANAPATHY HALL
+                        KK HALL
                     </p>
                 </Link>
 

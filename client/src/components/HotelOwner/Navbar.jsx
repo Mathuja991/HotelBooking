@@ -10,7 +10,7 @@ const Navbar = () => {
         <Link to='/'>
        
            <p className={'text-3xl font-bold font-serif  '}>
-                        KANAPATHY HALL
+                        KK HALL
                     </p>
         </Link>
          <UserButton />
